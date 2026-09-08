@@ -80,21 +80,15 @@
             </li>
             <li class="bor-left ms-4 ps-4">
               <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-              <a href="#0" aria-label="Our address">Nairobi, Kijabe Street, Norfolk Towers, Kenya</a>
+              <span aria-label="Our address">Nairobi, Kijabe Street, Norfolk Towers, Kenya</span>
             </li>
           </ul>
           <ul class="link-info list-unstyled d-flex align-items-center mb-0">
             <li class="bor-right me-3 pe-3">
-              <a href="#0" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-            </li>
-            <li class="bor-right me-3 pe-3">
-              <a href="#0" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-            </li>
-            <li class="bor-right me-3 pe-3">
-              <a href="#0" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+              <a href="tel:+254714804532" aria-label="Call us">+254 714 804 532</a>
             </li>
             <li>
-              <a href="#0" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+              <a href="{{ url('shop') }}" aria-label="Shop networking and CCTV equipment">Shop Equipment</a>
             </li>
           </ul>
         </div>
@@ -115,10 +109,18 @@
           {{-- Desktop menu --}}
           <div class="main-menu d-none d-lg-block" role="navigation" aria-label="Primary">
             @php
-              // Cache services list for the nav (10 minutes)
-              $services = \Illuminate\Support\Facades\Cache::remember('nav_services', 600, function () {
-                  return \App\Models\Service::select('name','path')->orderBy('name')->get();
-              });
+              $navCategories = [
+                ['label' => 'Routers', 'slug' => 'networking-tools-accessories-routers'],
+                ['label' => 'Network Switches', 'slug' => 'networking-tools-accessories-switches'],
+                ['label' => 'Wireless Access Points', 'slug' => 'networking-tools-accessories-access-points'],
+                ['label' => 'Wireless Outdoor CPE', 'slug' => 'networking-tools-accessories-wireless-radios'],
+                ['label' => 'Ethernet Cables', 'slug' => 'networking-tools-accessories-ethernet-cables'],
+                ['label' => 'CCTV Security Cameras', 'slug' => 'cameras'],
+                ['label' => 'Network Video Recorders (NVR)', 'slug' => 'nvr'],
+                ['label' => 'Digital Video Recorders (DVR)', 'slug' => 'dvr'],
+                ['label' => 'Ubiquiti Network Devices', 'slug' => 'ubiquiti-network-devices-for-sale-in-kenya'],
+                ['label' => 'Dahua CCTV Cameras', 'slug' => 'dahua-cctv-security-cameras'],
+              ];
             @endphp
             <nav>
               <ul class="list-unstyled d-flex align-items-center mb-0">
@@ -126,20 +128,15 @@
                   <a class="{{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">Home</a>
                 </li>
 
-                <li class="me-3">
-                  <a href="https://reisenseo.co.ke/" rel="noopener" target="_blank">Starlink Kenya</a>
+                <li class="me-3 position-relative">
+                  <a href="{{ route('shop') }}">Categories <i class="fa-solid fa-angle-down" aria-hidden="true"></i></a>
+                  <ul class="sub-menu list-unstyled">
+                    @foreach($navCategories as $navCat)
+                      <li><a href="{{ route('shops_filter', $navCat['slug']) }}">{{ $navCat['label'] }}</a></li>
+                    @endforeach
+                    <li><a href="{{ route('shop') }}">All Products</a></li>
+                  </ul>
                 </li>
-
-                @if($services->count())
-                  <li class="me-3 position-relative">
-                    <a href="#0">Services <i class="fa-solid fa-angle-down" aria-hidden="true"></i></a>
-                    <ul class="sub-menu list-unstyled">
-                      @foreach($services as $service)
-                        <li><a href="{{ $service->path }}">{{ $service->name }}</a></li>
-                      @endforeach
-                    </ul>
-                  </li>
-                @endif
 
                 <li class="me-3">
                   <a class="{{ request()->is('shop') ? 'active' : '' }}" href="{{ route('shop') }}">Shop</a>
@@ -183,23 +180,19 @@
               <a class="{{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">Home</a>
             </li>
             <li class="mb-2">
-              <a href="https://reisenseo.co.ke/" rel="noopener" target="_blank">Starlink Kenya</a>
-            </li>
-
-            @if($services->count())
-              <li class="mb-2">
-                <span class="d-block fw-semibold mb-1">Services</span>
-                <ul class="list-unstyled ms-3">
-                  @foreach($services as $service)
-                    <li class="mb-1"><a href="{{ $service->path }}">{{ $service->name }}</a></li>
-                  @endforeach
-                </ul>
-              </li>
-            @endif
-
-            <li class="mb-2">
               <a class="{{ request()->is('shop') ? 'active' : '' }}" href="{{ route('shop') }}">Shop</a>
             </li>
+
+            <li class="mb-2">
+              <span class="d-block fw-semibold mb-1">Categories</span>
+              <ul class="list-unstyled ms-3">
+                @foreach($navCategories as $navCat)
+                  <li class="mb-1"><a href="{{ route('shops_filter', $navCat['slug']) }}">{{ $navCat['label'] }}</a></li>
+                @endforeach
+                <li class="mb-1"><a href="{{ route('shop') }}">All Products</a></li>
+              </ul>
+            </li>
+
             <li class="mb-2">
               <a class="{{ request()->is('about-us') ? 'active' : '' }}" href="{{ url('about-us') }}">About Us</a>
             </li>
@@ -256,24 +249,23 @@
     {{-- Page-specific scripts --}}
     @stack('scripts')
 
-    {{-- JSON-LD Organization (basic) --}}
+    {{-- JSON-LD LocalBusiness (genuine details only) --}}
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "{{ addslashes(get_option(site_id().'_site_title')) }}",
+      "@type": "Store",
+      "name": "{{ addslashes(get_option(site_id().'_site_name')) }}",
       "url": "{{ url('/') }}",
       "logo": "{{ logo_url() }}",
       "email": "info@reisenseo.com",
+      "telephone": "+254714804532",
+      "priceRange": "KES",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Nairobi",
         "streetAddress": "Kijabe Street, Norfolk Towers",
         "addressCountry": "KE"
-      },
-      "sameAs": [
-        "#", "#", "#", "#"
-      ]
+      }
     }
     </script>
 </body>

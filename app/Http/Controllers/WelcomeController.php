@@ -1240,9 +1240,58 @@ public function blogSingle($slug){
 }
 
 public function sitemap() {
-  $posts = Sitemap::all();
+  $urls = [];
+
+  $now = Carbon::now();
+
+  // Static, canonical pages
+  $urls[] = ['loc' => url('/'), 'lastmod' => $now, 'changefreq' => 'daily', 'priority' => '1.0'];
+  $urls[] = ['loc' => url('shop'), 'lastmod' => $now, 'changefreq' => 'daily', 'priority' => '0.9'];
+  $urls[] = ['loc' => url('about-us'), 'lastmod' => $now, 'changefreq' => 'monthly', 'priority' => '0.6'];
+  $urls[] = ['loc' => url('contact-us'), 'lastmod' => $now, 'changefreq' => 'monthly', 'priority' => '0.6'];
+
+  // Product categories
+  foreach (Category::where('cat_type', 4)->whereNotNull('slug')->get() as $category) {
+    $urls[] = [
+      'loc' => route('shops_filter', $category->slug),
+      'lastmod' => $category->updated_at ?: $now,
+      'changefreq' => 'weekly',
+      'priority' => '0.7',
+    ];
+  }
+
+  // Products
+  foreach (Post::where('type', 'product')->where('status', 1)->whereNotNull('slug')->get() as $product) {
+    $urls[] = [
+      'loc' => route('shop_description', $product->slug),
+      'lastmod' => $product->updated_at ?: $now,
+      'changefreq' => 'weekly',
+      'priority' => '0.6',
+    ];
+  }
+
+  // Blog posts
+  foreach (Post::where('type', 'post')->where('status', 1)->whereNotNull('slug')->get() as $post) {
+    $urls[] = [
+      'loc' => route('blog_single', $post->slug),
+      'lastmod' => $post->updated_at ?: $now,
+      'changefreq' => 'monthly',
+      'priority' => '0.5',
+    ];
+  }
+
+  // Legacy informational pages (preserved URLs)
+  foreach (Post::where('type', 'page')->where('status', 1)->whereNotNull('slug')->get() as $page) {
+    $urls[] = [
+      'loc' => route('page_single', $page->slug),
+      'lastmod' => $page->updated_at ?: $now,
+      'changefreq' => 'monthly',
+      'priority' => '0.4',
+    ];
+  }
+
   return response()->view('sitemap', [
-    'posts' => $posts
+    'urls' => $urls,
   ])->header('Content-Type', 'text/xml');
 }
 

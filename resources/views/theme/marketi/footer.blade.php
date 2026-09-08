@@ -1,7 +1,7 @@
     <!-- Footer area start here -->
     <footer
       class="footer-area footer-bg bg-image"
-      data-background="assets/images/bg/footer-bg.png"
+      data-background="{{ asset('resources/views/theme/marketi/assets/images/bg/footer-bg.png') }}"
     >
       <div class="footer__main-wrp">
         <div class="container">
@@ -13,19 +13,14 @@
                 data-wow-duration="1000ms"
               >
                 <div class="footer__item">
-                  <a href="index-2.html" class="logo mb-20">
-                    <img src="{{ logo_url() }}" alt="image" />
+                  <a href="{{ route('home') }}" class="logo mb-20">
+                    <img src="{{ logo_url() }}" alt="{{ get_option(site_id().'_site_name') }} logo" />
                   </a>
                   <p>
-                    Optimize your success with our ROI-driven digital marketing
-                    agency.
+                    {{ get_option(site_id().'_site_name') }} supplies networking equipment and CCTV security
+                    systems in Kenya — routers, switches, access points, network cables, IP cameras, NVRs, DVRs
+                    and accessories.
                   </p>
-                  <div class="social-icon mt-20">
-                    <a href="#0"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#0"><i class="fa-brands fa-linkedin-in"></i></a>
-                    <a href="#0"><i class="fa-brands fa-skype"></i></a>
-                    <a href="#0"><i class="fa-brands fa-whatsapp"></i></a>
-                  </div>
                 </div>
               </div>
               <div
@@ -34,20 +29,13 @@
                 data-wow-duration="1000ms"
               >
                 <div class="footer__item">
-                  <h4 class="title mb-20 text-white">Company</h4>
+                  <h4 class="title mb-20 text-white">Products</h4>
                   <ul class="link">
-                    <li>
-                      <a href="{{ url('about-us') }}">About Us</a>
-                    </li>
-                    <li>
-                      <a href="{{ url('about-us') }}">Services</a>
-                    </li>
-                    <li>
-                      <a href="{{ url('contact-us') }}">Blog</a>
-                    </li>
-                    <li>
-                      <a href="{{ url('contact-us') }}">Pricing</a>
-                    </li>
+                    <li><a href="{{ route('shops_filter', 'networking-tools-accessories-routers') }}">Routers</a></li>
+                    <li><a href="{{ route('shops_filter', 'networking-tools-accessories-switches') }}">Network Switches</a></li>
+                    <li><a href="{{ route('shops_filter', 'networking-tools-accessories-access-points') }}">Access Points</a></li>
+                    <li><a href="{{ route('shops_filter', 'cameras') }}">CCTV Cameras</a></li>
+                    <li><a href="{{ route('shops_filter', 'networking-tools-accessories-ethernet-cables') }}">Network Cables</a></li>
                   </ul>
                 </div>
               </div>
@@ -57,21 +45,12 @@
                 data-wow-duration="1000ms"
               >
                 <div class="footer__item">
-                  <h4 class="title mb-20 text-white">Support</h4>
+                  <h4 class="title mb-20 text-white">Company</h4>
                   <ul class="link">
-                    <li>
-                      <a href="{{ url('contact-us') }}">Contact Us</a>
-                    </li>
-                   
-                    <li>
-                      <a href="{{ url('contact-us') }}">Privacy Policy</a>
-                    </li>
-                    <li>
-                      <a href="{{ url('contact-us') }}">Terms Conditions</a>
-                    </li>
-                    <li>
-                      <a href="{{ url('contact-us') }}">Cookies</a>
-                    </li>
+                    <li><a href="{{ url('about-us') }}">About Us</a></li>
+                    <li><a href="{{ route('shop') }}">Shop</a></li>
+                    <li><a href="{{ url('blog') }}">Blog</a></li>
+                    <li><a href="{{ url('contact-us') }}">Contact Us</a></li>
                   </ul>
                 </div>
               </div>
@@ -82,12 +61,13 @@
               >
                 <div class="footer__item">
                   <h4 class="title mb-20 text-white">Contact Info</h4>
-                  
                   <p class="mt-4">
-                 Email:<br> 
-                 info@reisenseo.com<br>
-                 Phone:<br>
-                +254 714 804 532
+                    Email:<br>
+                    <a href="mailto:info@reisenseo.com">info@reisenseo.com</a><br><br>
+                    Phone:<br>
+                    <a href="tel:+254714804532">+254 714 804 532</a><br><br>
+                    Address:<br>
+                    Nairobi, Kijabe Street, Norfolk Towers, Kenya
                   </p>
                 </div>
               </div>
@@ -101,8 +81,7 @@
           data-wow-delay="400ms"
           data-wow-duration="1000ms"
         >
-          &copy; All Copyright 2024 by
-          <a href="#0" class="primary-hover">{{ domain_name() }}</a>
+          &copy; {{ date('Y') }} {{ domain_name() }}. All rights reserved.
         </p>
       </div>
     </footer>
@@ -136,33 +115,5 @@
     <script src="{{ asset('resources/views/theme/marketi/assets/js/jquery.waypoints.js')}}"></script>
     <!-- Script Js -->
     <script src="{{ asset('resources/views/theme/marketi/assets/js/script.js')}}"></script>
-
-    <!-- <script>
-      // Register the plugin
-      gsap.registerPlugin(MotionPathPlugin);
-
-      // Create the animation for moving the object
-      var tl = gsap.timeline();
-      tl.to("#movingObject", {
-        duration: 10,
-        ease: "none",
-        motionPath: {
-          path: "#motionPath",
-          align: "self",
-          autoRotate: false,
-          alignOrigin: [0.5, 0.5],
-        },
-      }).to("#movingObject", {
-        // Chain another animation to make the object disappear
-        duration: 0.5, // Duration of the disappearance
-        opacity: 0,
-        onComplete: function () {
-          // Set the display to 'none' after the opacity animation completes
-          document.getElementById("movingObject").style.display = "none";
-        },
-      });
-    </script> -->
   </body>
-
-<!-- Mirrored from marketi-html.vercel.app/marketi-demo/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 07 Mar 2024 15:55:49 GMT -->
 </html>

@@ -1,8 +1,64 @@
 @extends('theme.marketi.header')
 
-@section('title', $product->title)
+@section('title', $product->title . ' | ' . get_option(site_id().'_site_name'))
+
+@section('meta_description')
+@if(!empty($product->meta_description))
+{{ substr(trim(preg_replace('/\s\s+/', ' ', strip_tags($product->meta_description))), 0, 160) }}
+@else
+{{ $product->title }} — buy genuine networking and CCTV equipment in Kenya with fast delivery and local support.
+@endif
+@endsection
+
+@section('canonical', route('shop_description', $product->slug))
 
 @section('content')
+@php
+  $category = $product->category_id ? \App\Models\Category::find($product->category_id) : null;
+  $featured = \App\Models\Upload::wherePostId($product->id)->whereStatus('1')->first();
+@endphp
+
+@php
+  $schemaData = [
+    '@context' => 'https://schema.org',
+    '@type' => 'Product',
+    'name' => $product->title,
+    'image' => $featured ? url($featured->file_path) : asset('resources/views/theme/marketi/assets/images/placeholder/product.png'),
+    'description' => !empty($product->meta_description) ? strip_tags($product->meta_description) : $product->title,
+  ];
+  if ($category) {
+    $schemaData['category'] = $category->name;
+  }
+  if (is_numeric($product->cost) && (float) $product->cost > 0) {
+    $schemaData['offers'] = [
+      '@type' => 'Offer',
+      'priceCurrency' => 'KES',
+      'price' => $product->cost,
+      'availability' => 'https://schema.org/InStock',
+      'url' => route('shop_description', $product->slug),
+    ];
+  }
+@endphp
+<script type="application/ld+json">
+@php echo json_encode($schemaData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); @endphp
+</script>
+@if($category)
+@php
+  $breadcrumbData = [
+    '@context' => 'https://schema.org',
+    '@type' => 'BreadcrumbList',
+    'itemListElement' => [
+      ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+      ['@type' => 'ListItem', 'position' => 2, 'name' => 'Shop', 'item' => route('shop')],
+      ['@type' => 'ListItem', 'position' => 3, 'name' => $category->name, 'item' => route('shops_filter', $category->slug)],
+      ['@type' => 'ListItem', 'position' => 4, 'name' => $product->title],
+    ],
+  ];
+@endphp
+<script type="application/ld+json">
+@php echo json_encode($breadcrumbData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); @endphp
+</script>
+@endif
 <main>
 
   {{-- ===== Hero / Banner (lightweight, consistent with site) ===== --}}
@@ -14,6 +70,15 @@
   >
     <div class="container">
       <div class="banner__content py-4">
+        @if($category)
+          <nav aria-label="Breadcrumb" class="mb-2 small">
+            <a href="{{ url('/') }}" class="text-decoration-none">Home</a>
+            <span aria-hidden="true"> / </span>
+            <a href="{{ route('shop') }}" class="text-decoration-none">Shop</a>
+            <span aria-hidden="true"> / </span>
+            <a href="{{ route('shops_filter', $category->slug) }}" class="text-decoration-none">{{ $category->name }}</a>
+          </nav>
+        @endif
         <h1 class="h3 mb-2">{{ $product->title }}</h1>
         <span class="badge bg-success py-2 px-3">{{ price($product->cost) }}</span>
       </div>
@@ -127,6 +192,16 @@
           {!! $product->description !!}
         </div>
       </div>
+
+      {{-- Related / category navigation --}}
+      @if($category)
+        <div class="d-flex align-items-center justify-content-between mt-4">
+          <a href="{{ route('shops_filter', $category->slug) }}" class="btn btn-outline-primary">
+            More {{ $category->name }} <i class="fa fa-arrow-right ms-2"></i>
+          </a>
+          <a href="{{ route('shop') }}" class="btn btn-outline-secondary">All Products</a>
+        </div>
+      @endif
 
     </div>
   </section>

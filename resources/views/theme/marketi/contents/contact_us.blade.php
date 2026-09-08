@@ -1,7 +1,7 @@
 @extends('theme.marketi.header')
-@section('title', 'Contact Reisen SEO | Get in Touch for SEO Services in Kenya')
-@section('description', 'Have questions or need SEO services? Contact Reisen SEO to discuss your search engine optimization needs. Our team is ready to help you enhance your online presence and achieve your business goals.')
-{{-- @section('description') @if( ! empty(get_option(site_id().'_show_1_meta'))){{ substr(trim(preg_replace('/\s\s+/', ' ',strip_tags(get_option(site_id().'_show_1_meta')))),0,160) }}@endif @endsection --}}
+@section('title', 'Contact Us | Networking & CCTV Equipment in Kenya')
+@section('meta_description', 'Contact Reisen SEO for networking equipment and CCTV security systems in Kenya. Ask about routers, switches, access points, IP cameras, NVRs, DVRs, pricing and delivery.')
+@section('canonical', url('contact-us'))
 @section('content') 
 
 
@@ -14,9 +14,9 @@
                     <h2 class="wow fadeInUp" data-wow-delay="200ms" data-wow-duration="1000ms" style="visibility: visible; animation-duration: 1000ms; animation-delay: 200ms; animation-name: fadeInUp;">We’d love to hear from
                         <span>you</span>
                     </h2>
-                    <p class="wow fadeInUp" data-wow-delay="400ms" data-wow-duration="1000ms" style="visibility: visible; animation-duration: 1000ms; animation-delay: 400ms; animation-name: fadeInUp;">Your feedback is
-                        invaluable to us, and we eagerly await your thoughts <br> and insights. Chat to our friendly
-                        team.
+                    <p class="wow fadeInUp" data-wow-delay="400ms" data-wow-duration="1000ms" style="visibility: visible; animation-duration: 1000ms; animation-delay: 400ms; animation-name: fadeInUp;">Need networking
+                        equipment or CCTV security systems in Kenya? <br> Chat to our friendly team for pricing,
+                        availability and delivery.
                 </p></div>
                 <div class="row g-4">
                     <div class="col-lg-4">
@@ -28,7 +28,7 @@
                             </div>
                             <h4>Chat to support</h4>
                             <p>Speak to our friendly team.</p>
-                            <a href="#0">info@reisenseo.com</a>
+                            <a href="mailto:info@reisenseo.com">info@reisenseo.com</a>
                         </div>
                     </div>
                     <div class="col-lg-4">
@@ -40,7 +40,7 @@
                             </div>
                             <h4>Visit us</h4>
                             <p>Visit our office HQ.</p>
-                            <a href="#0">Nairobi, Kijabe Street, Norfolk Towers, Kenya</a>
+                            <span>Nairobi, Kijabe Street, Norfolk Towers, Kenya</span>
                         </div>
                     </div>
                     <div class="col-lg-4">
@@ -52,7 +52,7 @@
                             </div>
                             <h4>Call us</h4>
                             <p>Mon-Fri from 8am to 5pm.</p>
-                            <a href="tel:+3929299999">  +254 714 804 532</a>
+                            <a href="tel:+254714804532">  +254 714 804 532</a>
                         </div>
                     </div>
                 </div>
