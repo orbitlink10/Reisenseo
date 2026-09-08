@@ -1,0 +1,72 @@
+# Laravel & PHP
+/vendor/
+/node_modules/
+/public/build/
+/public/hot/
+/public/storage/
+/storage/*.key
+/.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+.env
+.env.backup
+.env.*.backup
+
+# IDEs and editors
+/.idea/
+/.vscode/
+/*.code-workspace
+
+# NPM / Yarn
+npm-debug.log*
+yarn-error.log*
+yarn-debug.log*
+.pnp.*
+.pnpm-debug.log*
+
+# Mix / Vite / Webpack
+mix-manifest.json
+webpack.mix.js
+.vite
+
+# OS files
+Thumbs.db
+.DS_Store
+ehthumbs.db
+Icon?
+
+# Composer and NPM lock files (optional)
+/composer.lock
+# /package-lock.json
+# /yarn.lock
+
+# PHPUnit
+.phpunit.result.cache
+
+# Logs & dumps
+/storage/*.log
+/storage/debugbar/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/cache/data/*
+/bootstrap/cache/*.php
+
+# Temporary files
+*.swp
+*.tmp
+*.temp
+*.bak
+
+# Coverage reports
+/coverage/
+/phpunit.xml
+
+# Docker
+docker-compose.override.yml
+.env.docker
+
+# Misc
+*.log
+
+/storage/logs/*.log
+
