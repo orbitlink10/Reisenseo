@@ -58,6 +58,30 @@
         }
         .simple-banner a { color: #FF9803; font-weight: 600; }
 
+        /* ===== Orange top-bar (CTC-style) ===== */
+        .ctc-topbar {
+            background: #ff9803;
+            color: #0a0a0a;
+            font-size: 13px;
+        }
+        .ctc-topbar__inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 7px 0;
+        }
+        .ctc-topbar a { color: #0a0a0a; font-weight: 600; }
+        .ctc-topbar a:hover { color: #000; text-decoration: underline; }
+        .ctc-topbar__left { display: flex; gap: 22px; }
+        .ctc-topbar__left a i { margin-right: 6px; }
+        .ctc-topbar__right { display: flex; gap: 16px; align-items: center; }
+        .ctc-topbar__right .socials a { margin-left: 10px; font-size: 14px; }
+        @media (max-width: 767px) {
+            .ctc-topbar__right { display: none; }
+            .ctc-topbar__inner { justify-content: center; }
+        }
+
         /* ===== Header ===== */
         .site-header {
             background: #fff;
@@ -143,10 +167,18 @@
 
         /* ===== Hero ===== */
         .hero-banner {
-            background: linear-gradient(120deg, #0E4DA5 0%, #1b6fd0 55%, #ff9803 130%);
+            position: relative;
+            background: url('{{ asset('resources/views/theme/marketi/assets/images/banner/banner-bg.png') }}') center center / cover no-repeat;
             color: #fff;
-            padding: 70px 0;
+            padding: 80px 0;
         }
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(6, 28, 68, 0.88) 0%, rgba(9, 40, 90, 0.72) 55%, rgba(255, 152, 3, 0.30) 100%);
+        }
+        .hero-banner > * { position: relative; z-index: 1; }
         .hero-banner__inner { max-width: 720px; }
         .hero-banner .kicker {
             display: inline-block;
@@ -304,6 +336,26 @@
 {{-- Sticky contact banner (CTC-style) --}}
 <div class="simple-banner">
     Call us on <a href="tel:+254714804532">+254 714 804 532</a> or email us on <a href="mailto:info@reisenseo.com">info@reisenseo.com</a>
+</div>
+
+{{-- Orange top-bar (CTC-style) --}}
+<div class="ctc-topbar">
+    <div class="container">
+        <div class="ctc-topbar__inner">
+            <div class="ctc-topbar__left">
+                <a href="tel:+254714804532"><i class="fa-solid fa-phone"></i>+254 714 804 532</a>
+                <a href="mailto:info@reisenseo.com"><i class="fa-solid fa-envelope"></i>info@reisenseo.com</a>
+            </div>
+            <div class="ctc-topbar__right">
+                <span><i class="fa-solid fa-truck"></i> Nationwide Delivery</span>
+                <span class="socials">
+                    <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+                </span>
+            </div>
+        </div>
+    </div>
 </div>
 
 {{-- Header --}}
