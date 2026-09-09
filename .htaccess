@@ -9,9 +9,9 @@
 
     ## ─── Redirect www AND/or HTTP → HTTPS non-www ───────────────────────────────
     # If the host starts with “www.” OR the request is not HTTPS, redirect
-    RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC,OR]
+    RewriteCond %{HTTP_HOST} ^www\.reisenseo\.com$ [NC,OR]
     RewriteCond %{HTTPS} off
-    RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+    RewriteRule ^ https://reisenseo.com%{REQUEST_URI} [L,R=302]
     ## ─────────────────────────────────────────────────────────────────────────────
 
     # Handle Authorization Header

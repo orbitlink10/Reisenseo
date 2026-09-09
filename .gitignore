@@ -51,6 +51,11 @@ Icon?
 /storage/framework/cache/data/*
 /bootstrap/cache/*.php
 
+# Preserve runtime directories in deployments.
+!/storage/framework/sessions/.gitignore
+!/storage/framework/views/.gitignore
+!/storage/framework/cache/data/.gitignore
+
 # Temporary files
 *.swp
 *.tmp
@@ -69,4 +74,3 @@ docker-compose.override.yml
 *.log
 
 /storage/logs/*.log
-
