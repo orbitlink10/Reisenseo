@@ -564,21 +564,48 @@ public function shop($slug = null)
     $title = domain_name() . " marketplace";
     $categories = Category::where('cat_type', 4)->get();
     $currentCategory = null;
+    $sections = collect();
 
-    $query = Post::where('type', 'product');
-
-    // Filter by category if a slug is provided
     if ($slug) {
         $currentCategory = Category::where('slug', $slug)->first();
         if ($currentCategory) {
-            $query = $query->where('category_id', $currentCategory->id);
+            $posts = Post::where('type', 'product')
+                ->where('category_id', $currentCategory->id)
+                ->orderBy('id', 'asc')
+                ->with('uploads')
+                ->paginate(20);
         } else {
             abort(404, 'Category not found.');
         }
+    } else {
+        $query = Post::where('type', 'product')->orderBy('id', 'asc')->with('uploads');
+
+        if ($q = trim(request('q'))) {
+            $query = $query->where('title', 'like', '%' . $q . '%');
+        }
+
+        $posts = $query->paginate(9);
+
+        // CTC-style homepage: one section per category with its products
+        $sections = collect();
+        if (! request('q')) {
+            $sections = $categories->map(function ($cat) {
+                $cat->products = Post::where('type', 'product')
+                    ->where('category_id', $cat->id)
+                    ->orderBy('id', 'asc')
+                    ->limit(10)
+                    ->with('uploads')
+                    ->get();
+                return $cat;
+            })->filter(function ($cat) {
+                return $cat->products->isNotEmpty();
+            })->sortByDesc(function ($cat) {
+                return $cat->products->count();
+            })->take(12)->values();
+        }
     }
-    $posts = $query->orderBy('id', 'asc')->paginate(9);
-    
-    return view('theme.'.get_option(site_id().'_theme').'.marketplace', compact('title', 'categories', 'posts','currentCategory'));
+
+    return view('theme.'.get_option(site_id().'_theme').'.marketplace', compact('title', 'categories', 'posts', 'currentCategory', 'sections'));
 }
 
 
@@ -600,7 +627,7 @@ public function filterShop($slug = null)
           abort(404, 'Category not found.');
       }
   }
-  $posts = $query->orderBy('id', 'asc')->paginate(99);
+  $posts = $query->orderBy('id', 'asc')->with('uploads')->paginate(99);
     return view('theme.'.get_option(site_id().'_theme').'.marketplace', compact('title', 'categories', 'posts','currentCategory'));
 }
 
