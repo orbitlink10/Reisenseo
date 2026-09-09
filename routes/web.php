@@ -151,6 +151,9 @@ Route::post('activate-code', ['as'=>'activate_code', 'uses' => 'WelcomeControlle
 
 
 
+Route::get('alogin', function () {
+    return redirect()->route('admin_login');
+});
 Route::post('alogin', ['as'=>'alogin', 'uses' => 'WelcomeController@aloginPost']);
 Route::post('loginPost', ['as'=>'login_post', 'uses' => 'WelcomeController@loginPost']);
 Route::get('admin', ['as'=>'admin_login', 'uses' => 'WelcomeController@alogin']);
