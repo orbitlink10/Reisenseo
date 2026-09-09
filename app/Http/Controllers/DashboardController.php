@@ -155,6 +155,27 @@ class DashboardController extends Controller
         }
       }
 
+      if ($user->is_admin()) {
+        $catalog = Post::whereNotNull('slug')->whereType('product');
+        $recentOrders = (clone $orders)->limit(8)->get();
+        $customers = User::whereIn('id', $recentOrders->pluck('user_id'))->pluck('name', 'id');
+        $recentProducts = (clone $catalog)->latest('id')->limit(12)->get();
+        $categoryNames = Category::whereIn('id', $recentProducts->pluck('category_id'))->pluck('name', 'id');
+        $pendingAccounts = User::where('active_status', 0)->latest('id')->limit(5)->get();
+        $stats = [
+          'orders' => Order::count(),
+          'pending' => Order::whereStatus(0)->count(),
+          'products' => (clone $catalog)->count(),
+          'users' => User::count(),
+          'approvals' => User::where('active_status', 0)->count(),
+          'recentOrders' => Order::where('created_at', '>=', now()->subDays(7))->count(),
+          'newUsers' => User::where('created_at', '>=', now()->subDays(30))->count(),
+          'completed' => Order::whereStatus(4)->count(),
+          'categories' => Category::where('cat_type', 4)->count(),
+        ];
+        return view('admin.overview', compact('stats', 'recentOrders', 'customers', 'recentProducts', 'categoryNames', 'pendingAccounts'));
+      }
+
       $orders = $orders->paginate(20);
 
       $date0 = Carbon::today();
