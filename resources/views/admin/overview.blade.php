@@ -1,117 +1,225 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin Dashboard | ReisenSEO</title>
-<link rel="stylesheet" href="{{ asset('assets/css/admin-overview.css') }}?v=20260924">
-</head>
-<body>
-<a class="skip-link" href="#main-content">Skip to dashboard</a>
-<div class="admin-shell">
-    <aside class="navigation" aria-label="Administration">
-        <a class="brand" href="{{ route('dashboard') }}" aria-label="ReisenSEO dashboard">
-            <span class="brand-mark" aria-hidden="true">RS<span></span></span>
-            <span class="brand-name">ReisenSEO<small>ADMIN PANEL</small></span>
-        </a>
-        <details class="navigation-menu" open>
-            <summary>Navigation @include('admin.partials.overview-icon', ['icon' => 'menu'])</summary>
-            <nav aria-label="Admin navigation">
-                <a class="nav-link selected" href="{{ route('dashboard') }}" aria-current="page">
-                    <span class="nav-icon">@include('admin.partials.overview-icon', ['icon' => 'dashboard'])</span><span>Dashboard</span>
-                </a>
-                <p class="nav-heading">Content Management</p>
-                @foreach([
-                    ['homepage', 'Homepage Content', 'content'],
-                    ['wreviews', 'Reviews', 'reviews'],
-                    ['categories', 'Categories', 'categories'],
-                    ['products', 'Products', 'products'],
-                    ['post_page', 'Pages', 'page'],
-                ] as [$destination, $label, $icon])
-                    <a class="nav-link" href="{{ route($destination) }}"><span class="nav-icon">@include('admin.partials.overview-icon', ['icon' => $icon])</span><span>{{ $label }}</span></a>
-                @endforeach
-                <p class="nav-heading">Business Management</p>
-                @foreach([['order', 'Orders', 'orders'], ['invoices', 'Invoices', 'invoice'], ['users', 'Users', 'users']] as [$destination, $label, $icon])
-                    <a class="nav-link" href="{{ route($destination) }}"><span class="nav-icon">@include('admin.partials.overview-icon', ['icon' => $icon])</span><span>{{ $label }}</span></a>
-                @endforeach
-                <p class="nav-heading">Administration</p>
-                @foreach([['websites', 'Websites', 'globe'], ['settings', 'Settings', 'settings']] as [$destination, $label, $icon])
-                    <a class="nav-link" href="{{ route($destination) }}"><span class="nav-icon">@include('admin.partials.overview-icon', ['icon' => $icon])</span><span>{{ $label }}</span></a>
-                @endforeach
-            </nav>
-            <div class="navigation-footer">
-                <a class="visit" href="{{ url('/') }}">View website @include('admin.partials.overview-icon', ['icon' => 'external'])</a>
-                <div class="signed-in"><span class="avatar">{{ strtoupper(mb_substr(Auth::user()->name, 0, 1)) }}</span><span>{{ Auth::user()->name }}<small>Administrator</small></span></div>
-                <form class="logout" method="POST" action="{{ route('logout') }}">@csrf<button type="submit">@include('admin.partials.overview-icon', ['icon' => 'logout']) Sign out</button></form>
-            </div>
-        </details>
-    </aside>
-<main id="main-content" tabindex="-1">
-<div class="workspace">
-    @include('flash_msg')
-    <header class="page-heading">
-        <div class="page-intro">
-            <span class="overview-label">Admin Overview</span>
-            <h1>Dashboard</h1>
-            <p>View and manage all customer orders, users,<br class="desktop-break"> products, and account activations.</p>
+@extends('dashboard.layouts.app')
+
+@section('title', 'Dashboard')
+
+@section('content')
+@php
+    $subscriptionsCount = \App\Models\Payment::wherePaymentSource('subscription')->whereStatus(1)->count();
+    $pendingTasks = \App\Models\Task::whereStatus(2)->count();
+
+    $statusMap = [
+        0 => ['Pending', 'amber'],
+        1 => ['Available', 'blue'],
+        2 => ['Assigned', 'violet'],
+        3 => ['Editing', 'blue'],
+        4 => ['Completed', 'green'],
+        5 => ['Approved', 'green'],
+        6 => ['Revision', 'amber'],
+        7 => ['Cancelled', 'rose'],
+        8 => ['Editor Revision', 'violet'],
+        9 => ['Dispute', 'rose'],
+    ];
+
+    $seriesDates = [];
+    $seriesUsers = [];
+    $seriesOrders = [];
+    $seriesSubs = [];
+    for ($i = 6; $i >= 0; $i--) {
+        $d = \Carbon\Carbon::today()->subDays($i);
+        $seriesDates[] = $d->format('M j');
+        $seriesUsers[] = \App\Models\User::whereUserType('client')->where(DB::raw('date(created_at)'), $d)->count();
+        $seriesOrders[] = \App\Models\Order::where(DB::raw('date(created_at)'), $d)->count();
+        $seriesSubs[] = \App\Models\Payment::wherePaymentSource('subscription')->whereStatus(1)->where(DB::raw('date(created_at)'), $d)->count();
+    }
+@endphp
+
+@include('dashboard.partials.flash')
+
+<header class="rsd-page-head">
+    <div>
+        <span class="rsd-eyebrow">Admin Overview</span>
+        <h1>Dashboard</h1>
+        <p>Manage orders, users, products, subscriptions and client activities.</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <a class="rsd-btn primary" href="{{ route('add_order') }}"><i class="fa fa-plus"></i> New Order</a>
+        <a class="rsd-btn" href="{{ route('products') }}#add-product">New Product</a>
+    </div>
+</header>
+
+<section class="rsd-stats" aria-label="Business summary">
+    @include('dashboard.partials.stat-card', ['label' => 'Total Users', 'value' => number_format($stats['users']), 'desc' => 'Registered accounts', 'icon' => 'fa fa-users', 'color' => '#2563eb', 'soft' => '#eff6ff'])
+    @include('dashboard.partials.stat-card', ['label' => 'Total Orders', 'value' => number_format($stats['orders']), 'desc' => $stats['pending'] . ' pending review', 'icon' => 'fa fa-shopping-cart', 'color' => '#0ea5e9', 'soft' => '#e0f2fe'])
+    @include('dashboard.partials.stat-card', ['label' => 'Total Products', 'value' => number_format($stats['products']), 'desc' => 'Catalog listings', 'icon' => 'fa fa-cube', 'color' => '#14b8a6', 'soft' => '#ccfbf1'])
+    @include('dashboard.partials.stat-card', ['label' => 'Total Revenue', 'value' => get_currency() . ' ' . number_format($stats['revenue'], 2), 'desc' => 'Paid orders', 'icon' => 'fa fa-dollar-sign', 'color' => '#22c55e', 'soft' => '#dcfce7'])
+    @include('dashboard.partials.stat-card', ['label' => 'Subscriptions', 'value' => number_format($subscriptionsCount), 'desc' => 'Active subscriptions', 'icon' => 'fa fa-sync-alt', 'color' => '#8b5cf6', 'soft' => '#ede9fe'])
+    @include('dashboard.partials.stat-card', ['label' => 'Pending Tasks', 'value' => number_format($pendingTasks), 'desc' => 'Tasks awaiting action', 'icon' => 'fa fa-clipboard-list', 'color' => '#f59e0b', 'soft' => '#fef3c7'])
+</section>
+
+<section class="rsd-panel" aria-label="Recent statistics">
+    <div class="rsd-panel__head">
+        <div>
+            <p class="rsd-eyebrow">Analytics</p>
+            <h2>Recent Statistics</h2>
         </div>
-        <div class="actions" aria-label="Quick actions">
-            <a class="button primary" href="{{ route('products') }}#add-product"><span aria-hidden="true">+</span> New Product</a>
-            <a class="button" href="{{ route('users') }}">Manage Users</a>
-            <a class="button" href="{{ route('products') }}#recent-products">Manage Products</a>
-            <a class="button" href="{{ route('wreviews') }}">Manage Reviews</a>
+    </div>
+    <div class="rsd-panel__body">
+        <div class="rsd-chart"><canvas id="rsdStatsChart"></canvas></div>
+    </div>
+</section>
+
+<section class="rsd-panel" aria-label="Recent orders">
+    <div class="rsd-panel__head">
+        <div>
+            <p class="rsd-eyebrow">Orders Desk</p>
+            <h2>Recent Orders</h2>
         </div>
-    </header>
-    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="{{ url('/') }}">Home</a><span aria-hidden="true">/</span><span aria-current="page">Dashboard</span></nav>
-    <section class="summary-grid" aria-label="Business summary">
-        @foreach([
-            ['Orders', 'orders', 'OR', number_format($stats['pending']).' pending review', route('order'), 'View orders', 'blue'],
-            ['Products', 'products', 'PR', number_format($stats['products']).' catalog listings', route('products').'#recent-products', 'View products', 'teal'],
-            ['Users', 'users', 'US', 'Registered accounts', route('users'), 'View users', 'slate'],
-            ['Activations', 'approvals', 'AC', 'Accounts awaiting activation', '#pending-activations', 'Review activations', 'rose'],
-        ] as [$label, $key, $icon, $description, $destination, $linkLabel, $color])
-            <article class="summary-card tone-{{ $color }}">
-                <span class="metric-icon" aria-hidden="true">{{ $icon }}</span>
-                <h2>{{ $label }}</h2>
-                <strong class="metric-value">{{ number_format($stats[$key]) }}</strong>
-                <p>{{ $description }}</p>
-                <a class="metric-link" href="{{ $destination }}">{{ $linkLabel }} <span aria-hidden="true">&gt;</span></a>
-            </article>
-        @endforeach
-    </section>
-    <section class="secondary-grid" aria-label="Activity metrics">
-        <article class="activity-card tone-slate">
-            <h2>Total Revenue</h2>
-            <strong class="metric-value revenue"><span class="currency">{{ get_currency() }}</span>{{ number_format($stats['revenue'], 2) }}</strong>
-            <p>Paid orders</p>
-        </article>
-        @foreach([['Recent Orders', 'recentOrders', 'Last 7 days', 'blue'], ['New Users', 'newUsers', 'Last 30 days', 'navy'], ['Active Users', 'activeUsers', 'Last 24 hours', 'teal']] as [$label, $key, $description, $color])
-            <article class="activity-card tone-{{ $color }}"><h2>{{ $label }}</h2><strong class="metric-value">{{ number_format($stats[$key]) }}</strong><p>{{ $description }}</p></article>
-        @endforeach
-    </section>
-<div class="desk-grid">
-<section class="panel"><div class="panel-heading"><div><p class="eyebrow">ORDERS DESK</p><h2>Recent Orders</h2></div><a href="{{ route('order') }}">View all &rarr;</a></div>
-<div class="table-scroll" tabindex="0" role="region" aria-label="Recent orders table"><table><thead><tr><th scope="col">Order</th><th scope="col">Customer</th><th scope="col">Status</th><th scope="col">Date</th></tr></thead><tbody>
-@forelse($recentOrders as $order)
-<tr><td><a href="{{ route('view_order', $order->slug) }}">#{{ $order->id }}</a><small>{{ \Illuminate\Support\Str::limit($order->title, 42) }}</small></td><td>{{ $customers[$order->user_id] ?? 'Unavailable' }}</td><td><span class="status">{{ [0=>'Pending',1=>'Available',2=>'Assigned',3=>'Editing',4=>'Completed',5=>'Approved',6=>'Revision',7=>'Cancelled'][$order->status] ?? 'Unknown' }}</span></td><td class="nowrap">{{ optional($order->created_at)->format('d M Y') }}</td></tr>
-@empty<tr><td colspan="4" class="empty">No orders yet. New orders will appear here.</td></tr>@endforelse
-</tbody></table></div></section>
-<section class="panel" id="pending-activations"><div class="panel-heading"><div><p class="eyebrow">ACCOUNT QUEUE</p><h2>Pending Activations</h2></div></div>
-@forelse($pendingAccounts as $account)<div class="account"><span class="avatar">{{ strtoupper(mb_substr($account->name,0,1)) }}</span><div><a href="{{ route('user_info', $account->id) }}">{{ $account->name }}</a><small>Awaiting activation</small></div></div>@empty<p class="empty">No accounts awaiting activation.</p>@endforelse
-<a class="panel-footer" href="{{ route('users') }}">Manage accounts &rarr;</a></section>
-</div>
-<section class="panel catalog"><div class="panel-heading"><div><p class="eyebrow">CATALOG ADMIN</p><h2>Products</h2></div><a href="{{ route('products') }}#recent-products">View all products &rarr;</a></div><div class="table-scroll" tabindex="0" role="region" aria-label="Products table"><table><thead><tr><th scope="col">Name</th><th scope="col">Category</th><th scope="col">Price</th><th scope="col">Added</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead><tbody>
-@forelse($recentProducts as $product)<tr><td>{{ $product->title }}</td><td>{{ $categoryNames[$product->category_id] ?? 'Uncategorized' }}</td><td class="nowrap">{{ price($product->cost ?? 0) }}</td><td class="nowrap">{{ optional($product->created_at)->format('d M Y') }}</td><td><a href="{{ route('edit_post', $product->id) }}">Edit<span class="sr-only"> {{ $product->title }}</span></a></td></tr>
-@empty<tr><td colspan="5" class="empty">No products yet. Add your first product to build your catalog.</td></tr>@endforelse
-</tbody></table></div></section>
-<footer>ReisenSEO &middot; Administration</footer>
-</div></main></div>
+        <a class="rsd-btn sm" href="{{ route('order') }}">View all &rarr;</a>
+    </div>
+    <div class="rsd-table-wrap">
+        <table class="rsd-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Customer</th>
+                    <th>Service</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($recentOrders as $order)
+                    @php $s = $statusMap[$order->status] ?? ['Unknown', 'slate']; @endphp
+                    <tr>
+                        <td class="rsd-cell-main">#{{ $order->id }}</td>
+                        <td>{{ $customers[$order->user_id] ?? 'Unavailable' }}</td>
+                        <td>{{ subject($order->category_id) }}</td>
+                        <td class="nowrap">{{ price((int) $order->ccost) }}</td>
+                        <td><span class="rsd-pill {{ $s[1] }}">{{ $s[0] }}</span></td>
+                        <td class="nowrap muted">{{ optional($order->created_at)->format('d M Y') }}</td>
+                        <td>
+                            <div class="rsd-actions">
+                                <a class="rsd-action" href="{{ route('view_order', $order->slug) }}" title="View"><i class="fa fa-eye"></i></a>
+                                <a class="rsd-action" href="{{ route('edit_order', $order->id) }}" title="Edit"><i class="fa fa-edit"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="7" class="rsd-empty">No orders yet. New orders will appear here.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="rsd-panel" aria-label="Recent products">
+    <div class="rsd-panel__head">
+        <div>
+            <p class="rsd-eyebrow">Catalog Admin</p>
+            <h2>Recent Products</h2>
+        </div>
+        <a class="rsd-btn sm" href="{{ route('products') }}#recent-products">View all products &rarr;</a>
+    </div>
+    <div class="rsd-table-wrap">
+        <table class="rsd-table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Added</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($recentProducts as $product)
+                    <tr>
+                        <td><span class="rsd-thumb">{{ strtoupper(mb_substr($product->title, 0, 1)) }}</span></td>
+                        <td class="rsd-cell-main">{{ $product->title }}</td>
+                        <td>{{ $categoryNames[$product->category_id] ?? 'Uncategorized' }}</td>
+                        <td class="nowrap">{{ price($product->cost ?? 0) }}</td>
+                        <td class="nowrap muted">{{ optional($product->created_at)->format('d M Y') }}</td>
+                        <td>
+                            <div class="rsd-actions">
+                                <a class="rsd-action" href="{{ route('edit_post', $product->id) }}" title="Edit"><i class="fa fa-edit"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="6" class="rsd-empty">No products yet.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</section>
+@endsection
+
+@section('page-js')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    (() => {
-        const menu = document.querySelector('.navigation-menu');
-        const mobile = window.matchMedia('(max-width: 760px)');
-        const updateMenu = () => { menu.open = !mobile.matches; };
-        updateMenu();
-        mobile.addEventListener('change', updateMenu);
+    (function () {
+        var ctx = document.getElementById('rsdStatsChart');
+        if (!ctx) return;
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @json($seriesDates),
+                datasets: [
+                    {
+                        label: 'Users',
+                        data: @json($seriesUsers),
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, .08)',
+                        borderWidth: 2.5,
+                        tension: .35,
+                        fill: true,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#2563eb',
+                        pointRadius: 3
+                    },
+                    {
+                        label: 'Orders',
+                        data: @json($seriesOrders),
+                        borderColor: '#0ea5e9',
+                        backgroundColor: 'rgba(14, 165, 233, .08)',
+                        borderWidth: 2.5,
+                        tension: .35,
+                        fill: true,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#0ea5e9',
+                        pointRadius: 3
+                    },
+                    {
+                        label: 'Subscriptions',
+                        data: @json($seriesSubs),
+                        borderColor: '#22c55e',
+                        backgroundColor: 'rgba(34, 197, 94, .08)',
+                        borderWidth: 2.5,
+                        tension: .35,
+                        fill: true,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#22c55e',
+                        pointRadius: 3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: '#64748b', usePointStyle: true, pointStyle: 'circle' }
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
+                    y: { ticks: { color: '#94a3b8', precision: 0 }, grid: { color: 'rgba(148,163,184,.16)' } }
+                }
+            }
+        });
     })();
 </script>
-</body></html>
+@endsection
