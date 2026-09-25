@@ -170,6 +170,8 @@ class DashboardController extends Controller
           'approvals' => User::where('active_status', 0)->count(),
           'recentOrders' => Order::where('created_at', '>=', now()->subDays(7))->count(),
           'newUsers' => User::where('created_at', '>=', now()->subDays(30))->count(),
+          'revenue' => Payment::whereStatus(1)->wherePaymentSource('Order paid')->sum('amount'),
+          'activeUsers' => User::where('last_activity', '>=', now()->subDay())->count(),
           'completed' => Order::whereStatus(4)->count(),
           'categories' => Category::where('cat_type', 4)->count(),
         ];

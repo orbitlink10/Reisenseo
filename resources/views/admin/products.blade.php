@@ -24,7 +24,7 @@
                                     </ul>
                                 </div>
                             @endif
-                              <div class="card-header"><strong>Add Product</strong></div>
+                              <div class="card-header" id="add-product"><strong>Add Product</strong></div>
 
 
                               <div class="card-body">
@@ -150,7 +150,7 @@
                           <div><br></div>
 
                           <div class="card">
-                              <div class="card-header">Recent Products</div>
+                              <div class="card-header" id="recent-products">Recent Products</div>
 
                               <div class="card-body">
 

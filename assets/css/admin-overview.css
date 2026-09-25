@@ -1,0 +1,2 @@
+/* The root entry point shares the dashboard stylesheet with public/index.php. */
+@import url("../../public/assets/css/admin-overview.css?v=20260924");
