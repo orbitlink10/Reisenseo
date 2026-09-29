@@ -6,24 +6,27 @@
 
     var category = document.getElementById('product-category');
     var subcategory = document.getElementById('product-subcategory');
-    var options = Array.from(subcategory.querySelectorAll('option[data-category]'));
 
-    function updateSubcategories() {
-        var selected = subcategory.value;
-        var available = options.filter(function (option) {
-            return option.dataset.category === category.value;
-        });
+    if (category && subcategory) {
+        var options = Array.from(subcategory.querySelectorAll('option[data-category]'));
 
-        subcategory.replaceChildren(new Option(available.length ? 'Select Subcategory' : 'No subcategories available', ''));
-        available.forEach(function (option) {
-            subcategory.add(option.cloneNode(true));
-        });
-        subcategory.value = available.some(function (option) { return option.value === selected; }) ? selected : '';
-        subcategory.disabled = available.length === 0;
+        var updateSubcategories = function () {
+            var selected = subcategory.value;
+            var available = options.filter(function (option) {
+                return option.dataset.category === category.value;
+            });
+
+            subcategory.replaceChildren(new Option(available.length ? 'Select Subcategory' : 'No subcategories available', ''));
+            available.forEach(function (option) {
+                subcategory.add(option.cloneNode(true));
+            });
+            subcategory.value = available.some(function (option) { return option.value === selected; }) ? selected : '';
+            subcategory.disabled = available.length === 0;
+        };
+
+        category.addEventListener('change', updateSubcategories);
+        updateSubcategories();
     }
-
-    category.addEventListener('change', updateSubcategories);
-    updateSubcategories();
 
     var description = document.getElementById('product-description');
     var status = document.getElementById('product-editor-status');

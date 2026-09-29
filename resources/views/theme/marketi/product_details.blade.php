@@ -1,6 +1,6 @@
 @extends('theme.marketi.header')
 
-@section('title', $product->title . ' | ' . get_option(site_id().'_site_name'))
+@section('title', ($product->meta_title ?: $product->title) . ' | ' . get_option(site_id().'_site_name'))
 
 @section('meta_description')
 @if(!empty($product->meta_description))

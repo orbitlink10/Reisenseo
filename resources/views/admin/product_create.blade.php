@@ -74,14 +74,10 @@
                 </div>
 
                 <div class="rsd-form-group">
-                    <label for="product-subcategory">Subcategory</label>
-                    <select id="product-subcategory" class="rsd-form-control @error('sub_category') is-invalid @enderror" name="sub_category">
-                        <option value="">Select Subcategory</option>
-                        @foreach ($subCategories as $subcategory)
-                            <option value="{{ $subcategory->id }}" data-category="{{ $subcategory->cat_id }}" {{ old('sub_category', $post->sub_category ?? '') == $subcategory->id ? 'selected' : '' }}>{{ $subcategory->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('sub_category')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                    <label for="product-meta-title">Meta/SEO Title</label>
+                    <input id="product-meta-title" type="text" class="rsd-form-control @error('meta_title') is-invalid @enderror" name="meta_title" placeholder="Write the SEO title" value="{{ old('meta_title', $post->meta_title ?? '') }}" maxlength="255">
+                    <small class="text-muted">Shown as the page title in search results and the browser tab.</small>
+                    @error('meta_title')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                 </div>
 
                 <div class="rsd-form-group">

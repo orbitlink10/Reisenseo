@@ -466,6 +466,7 @@ public function updatesingleProduct(Request $request)
   $page->site_id = $request->site_id;
   $page->ti_icon = $request->ti_icon;
   $page->demo_url = $request->demo_url;
+  $page->meta_title = $request->meta_title;
   $page->meta_description = $request->meta_description;
   $page->updated_at = Carbon::now();
   $page->save();
@@ -819,6 +820,7 @@ public function addProduct(Request $request)
         'cost' => 'bail|required|numeric|min:0|max:9999999999.99',
         'marked_price' => 'nullable|numeric|min:0|max:9999999999.99',
         'quantity' => 'nullable|integer|min:0|max:2147483647',
+        'meta_title' => 'nullable|string|max:255',
         'meta_description' => 'nullable|string|max:255',
         'description' => 'nullable|string',
     ]);
@@ -843,6 +845,7 @@ public function addProduct(Request $request)
     'marked_price'   => $request->marked_price,
     'quantity'       => $request->quantity ?? 0,
     'sub_category'   => $request->sub_category,
+    'meta_title'     => $request->meta_title,
     'meta_description' => $request->meta_description,
 
   ];
