@@ -1233,6 +1233,43 @@ public function createWithdraw(Request $request){
 
 
 
+public function search(Request $request)
+{
+  $term = trim((string) $request->input('search', ''));
+
+  $orders = collect();
+  $users = collect();
+  $products = collect();
+  $categories = collect();
+
+  if ($term !== '') {
+    $orders = Order::where('id', 'like', "%{$term}%")
+      ->orWhere('title', 'like', "%{$term}%")
+      ->orderBy('id', 'desc')
+      ->take(25)->get();
+
+    $users = User::where('name', 'like', "%{$term}%")
+      ->orWhere('email', 'like', "%{$term}%")
+      ->orWhere('nickname', 'like', "%{$term}%")
+      ->orderBy('id', 'desc')
+      ->take(25)->get();
+
+    $products = Post::where('type', 'product')
+      ->where('title', 'like', "%{$term}%")
+      ->orderBy('id', 'desc')
+      ->take(25)->get();
+
+    $categories = Category::where('cat_type', 4)
+      ->where('name', 'like', "%{$term}%")
+      ->orderBy('name')
+      ->take(25)->get();
+  }
+
+  return view('admin.search', compact('term', 'orders', 'users', 'products', 'categories'));
+}
+
+
+
 public function order(Request $request){
   $user = Auth::user();
 

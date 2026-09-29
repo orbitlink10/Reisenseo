@@ -192,6 +192,7 @@ Route::group(['prefix'=>'dashboard', 'middleware' => 'dashboard'], function(){
   Route::get('inbox/{id}', ['as'=>'inbox.show', 'uses' => 'InboxController@show']);
   Route::get('chat-lists', ['as'=>'chat_lists', 'uses' => 'DashboardController@chatLists']);
   Route::get('order', ['as'=>'order', 'uses' => 'DashboardController@order']);
+  Route::get('search', ['as'=>'search', 'uses' => 'DashboardController@search']);
   Route::get('payment-way', ['as'=>'payment_way', 'uses' => 'DashboardController@paymentWay']);
   Route::get('order-fined', ['as'=>'order_fined', 'uses' => 'DashboardController@orderFined']);
   Route::get('order-available', ['as'=>'order_available', 'uses' => 'DashboardController@orderAvailable']);

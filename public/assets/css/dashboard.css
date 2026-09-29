@@ -283,6 +283,36 @@ h1, h2, h3, h4, h5, h6, p { margin: 0; }
     box-shadow: 0 0 0 3px rgba(37, 99, 235, .14);
 }
 
+.rsd-search__submit {
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 14px;
+    cursor: pointer;
+    transition: color .18s ease, background .18s ease;
+}
+
+.rsd-search__submit:hover {
+    color: var(--primary);
+    background: #eef2f7;
+}
+
+.rsd-search__submit i {
+    position: static;
+    transform: none;
+    color: inherit;
+    font-size: inherit;
+}
+
 .rsd-navbar__right {
     margin-left: auto;
     display: flex;
