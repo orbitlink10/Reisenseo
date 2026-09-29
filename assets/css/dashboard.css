@@ -1,0 +1,2 @@
+/* The root entry point shares the dashboard stylesheet with public/index.php. */
+@import url("../../public/assets/css/dashboard.css?v=20260925");
