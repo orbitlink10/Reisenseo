@@ -4161,7 +4161,8 @@ public function settings(){
 
 $user =  $user_id = Auth::user();
 $categories = Category::where('cat_type', 4)->orderBy('name')->get();
-return view('admin.settings', compact('user', 'categories'));
+$products = Post::where('type', 'product')->orderBy('title')->get();
+return view('admin.settings', compact('user', 'categories', 'products'));
 }
 
 //user settings

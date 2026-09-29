@@ -137,8 +137,8 @@
     <div class="container">
       <div class="section-header__wrp mb-60">
         <div class="section-header">
-          <h5 class="wow fadeInUp">Latest Products</h5>
-          <h2 class="wow fadeInUp">Shop Now</h2>
+          <h5 class="wow fadeInUp">{{ site_option('home_products_eyebrow', 'Latest Products') }}</h5>
+          <h2 class="wow fadeInUp">{{ site_option('home_products_title', 'Shop Now') }}</h2>
         </div>
       </div>
       <div class="shop-grid">

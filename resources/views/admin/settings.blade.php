@@ -36,6 +36,9 @@
 @php
     $homeCategories = array_map('intval', site_option_array('home_categories'));
     $menuCategories = array_map('intval', site_option_array('menu_categories'));
+    $homeProducts = array_map('intval', site_option_array('home_products'));
+    $homeProductsEyebrow = site_option('home_products_eyebrow', 'Latest Products');
+    $homeProductsTitle = site_option('home_products_title', 'Shop Now');
     $phone = site_option('phone', '+254 714 804 532');
     $email = site_option('contact_email', 'info@reisenseo.com');
     $address = site_option('contact_address', 'Nairobi, Kijabe Street, Norfolk Towers, Kenya');
@@ -99,6 +102,39 @@
             </div>
         </section>
     </div>
+
+    <section class="rsd-panel">
+        <div class="rsd-panel__head">
+            <div>
+                <p class="rsd-eyebrow">Content</p>
+                <h2>Latest Products (Shop Now)</h2>
+            </div>
+        </div>
+        <div class="rsd-panel__body">
+            <p class="rsd-hint">Choose the products featured in the homepage "Shop Now" section. Leave all unchecked to show the latest 8 products automatically.</p>
+            <div class="rsd-form-grid">
+                <div class="rsd-form-group">
+                    <label>Small heading</label>
+                    <input type="text" class="rsd-form-control" name="{{ site_id() }}_home_products_eyebrow" value="{{ $homeProductsEyebrow }}" placeholder="Latest Products">
+                </div>
+                <div class="rsd-form-group">
+                    <label>Heading</label>
+                    <input type="text" class="rsd-form-control" name="{{ site_id() }}_home_products_title" value="{{ $homeProductsTitle }}" placeholder="Shop Now">
+                </div>
+            </div>
+            <div class="rsd-check-list" style="max-height: 420px; margin-top: 8px;">
+                <input type="hidden" name="{{ site_id() }}_home_products[]" value="">
+                @forelse ($products as $product)
+                    <label class="rsd-check">
+                        <input type="checkbox" name="{{ site_id() }}_home_products[]" value="{{ $product->id }}" @checked(in_array($product->id, $homeProducts))>
+                        <span>{{ $product->title }}</span>
+                    </label>
+                @empty
+                    <p class="muted">No products found.</p>
+                @endforelse
+            </div>
+        </div>
+    </section>
 
     <section class="rsd-panel">
         <div class="rsd-panel__head">
