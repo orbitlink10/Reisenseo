@@ -1,222 +1,167 @@
 @extends('theme.marketi.header')
 
-@section('title', ($product->meta_title ?: $product->title) . ' | ' . get_option(site_id().'_site_name'))
-
-@section('meta_description')
-@if(!empty($product->meta_description))
-{{ substr(trim(preg_replace('/\s\s+/', ' ', strip_tags($product->meta_description))), 0, 160) }}
-@else
-{{ $product->title }} — buy genuine networking and CCTV equipment in Kenya with fast delivery and local support.
-@endif
-@endsection
-
+@section('title', e(($product->meta_title ?: $product->title) . ' | ' . get_option(site_id().'_site_name')))
+@section('meta_description', e(strip_tags($product->meta_description ?: $product->title)))
 @section('canonical', route('shop_description', $product->slug))
+@section('og_type', 'product')
+@section('og_title', $product->meta_title ?: $product->title)
+@section('og_description', $product->meta_description ?: $product->title)
+@if ($uploads->isNotEmpty())
+    @section('og_image', url($uploads->first()->file_path))
+@endif
+
+@push('styles')
+<link rel="stylesheet" href="{{ asset('assets/css/product-details.css') }}?v=20260930">
+@endpush
 
 @section('content')
 @php
-  $category = $product->category_id ? \App\Models\Category::find($product->category_id) : null;
-  $featured = \App\Models\Upload::wherePostId($product->id)->whereStatus('1')->first();
-@endphp
-
-@php
-  $schemaData = [
-    '@context' => 'https://schema.org',
-    '@type' => 'Product',
-    'name' => $product->title,
-    'image' => $featured ? url($featured->file_path) : asset('resources/views/theme/marketi/assets/images/placeholder/product.png'),
-    'description' => !empty($product->meta_description) ? strip_tags($product->meta_description) : $product->title,
-  ];
-  if ($category) {
-    $schemaData['category'] = $category->name;
-  }
-  if (is_numeric($product->cost) && (float) $product->cost > 0) {
-    $schemaData['offers'] = [
-      '@type' => 'Offer',
-      'priceCurrency' => 'KES',
-      'price' => $product->cost,
-      'availability' => 'https://schema.org/InStock',
-      'url' => route('shop_description', $product->slug),
+    $category = $product->category_id ? \App\Models\Category::find($product->category_id) : null;
+    $images = $uploads ?? collect();
+    $mainImage = $images->first();
+    $currency = site_option('currency_sign', 'KES');
+    $hasPrice = is_numeric($product->cost) && (float) $product->cost > 0;
+    $onSale = $hasPrice && (float) $product->marked_price > (float) $product->cost;
+    $stockKnown = $product->quantity !== null;
+    $inStock = $stockKnown && (int) $product->quantity > 0;
+    $stockLabel = $stockKnown ? ($inStock ? 'In stock' : 'Out of stock') : 'Confirm availability';
+    $phone = site_option('phone', '+254 714 804 532');
+    $phoneHref = preg_replace('/[^0-9+]/', '', $phone);
+    $schema = [
+        '@context' => 'https://schema.org', '@type' => 'Product',
+        'name' => $product->title,
+        'description' => $product->meta_description ?: $product->title,
+        'url' => route('shop_description', $product->slug),
     ];
-  }
+    if ($images->isNotEmpty()) $schema['image'] = $images->map(fn ($image) => url($image->file_path))->values()->all();
+    if ($category) $schema['category'] = $category->name;
+    if ($hasPrice) {
+        $schema['offers'] = [
+            '@type' => 'Offer', 'priceCurrency' => 'KES',
+            'price' => number_format((float) $product->cost, 2, '.', ''),
+            'url' => route('shop_description', $product->slug),
+        ];
+        if ($stockKnown) $schema['offers']['availability'] = 'https://schema.org/'.($inStock ? 'InStock' : 'OutOfStock');
+    }
+    $breadcrumbs = [
+        ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
+        ['@type' => 'ListItem', 'position' => 2, 'name' => 'Shop', 'item' => route('shop')],
+    ];
+    if ($category) $breadcrumbs[] = ['@type' => 'ListItem', 'position' => 3, 'name' => $category->name, 'item' => route('shops_filter', $category->slug)];
+    $breadcrumbs[] = ['@type' => 'ListItem', 'position' => count($breadcrumbs) + 1, 'name' => $product->title];
 @endphp
-<script type="application/ld+json">
-@php echo json_encode($schemaData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); @endphp
-</script>
-@if($category)
-@php
-  $breadcrumbData = [
-    '@context' => 'https://schema.org',
-    '@type' => 'BreadcrumbList',
-    'itemListElement' => [
-      ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => url('/')],
-      ['@type' => 'ListItem', 'position' => 2, 'name' => 'Shop', 'item' => route('shop')],
-      ['@type' => 'ListItem', 'position' => 3, 'name' => $category->name, 'item' => route('shops_filter', $category->slug)],
-      ['@type' => 'ListItem', 'position' => 4, 'name' => $product->title],
-    ],
-  ];
-@endphp
-<script type="application/ld+json">
-@php echo json_encode($breadcrumbData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); @endphp
-</script>
-@endif
-<main>
+<script type="application/ld+json">{!! json_encode($schema, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES) !!}</script>
+<script type="application/ld+json">{!! json_encode(['@context' => 'https://schema.org', '@type' => 'BreadcrumbList', 'itemListElement' => $breadcrumbs], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_SLASHES) !!}</script>
 
-  {{-- ===== Hero / Banner (lightweight, consistent with site) ===== --}}
-  <section
-    class="banner-area bg-image paralax__animation"
-    data-background="{{ asset('resources/views/theme/marketi/assets/images/banner/banner-bg.png') }}"
-    style="background-image:url('{{ asset('resources/views/theme/marketi/assets/images/banner/banner-bg.png') }}');"
-    aria-label="Product banner"
-  >
+<div class="rs-product">
     <div class="container">
-      <div class="banner__content py-4">
-        @if($category)
-          <nav aria-label="Breadcrumb" class="mb-2 small">
-            <a href="{{ url('/') }}" class="text-decoration-none">Home</a>
-            <span aria-hidden="true"> / </span>
-            <a href="{{ route('shop') }}" class="text-decoration-none">Shop</a>
-            <span aria-hidden="true"> / </span>
-            <a href="{{ route('shops_filter', $category->slug) }}" class="text-decoration-none">{{ $category->name }}</a>
-          </nav>
-        @endif
-        <h1 class="h3 mb-2">{{ $product->title }}</h1>
-        <span class="badge bg-success py-2 px-3">{{ price($product->cost) }}</span>
-      </div>
-    </div>
-  </section>
-
-  {{-- ===== Product Content ===== --}}
-  <section class="pt-80 pb-120">
-    <div class="container">
-
-      {{-- Admin Edit Link --}}
-      @auth
-        @if(method_exists(auth()->user(), 'is_admin') && auth()->user()->is_admin())
-          <div class="mb-3 text-end">
-            <a href="{{ route('edit_post', $product->id) }}" target="_blank" class="btn btn-sm btn-secondary">
-              Edit Product
-            </a>
-          </div>
-        @endif
-      @endauth
-
-      {{-- Product Card --}}
-      <div class="card shadow-sm mb-4">
-        <div class="row g-0">
-          {{-- Gallery --}}
-          <div class="col-md-5 p-3">
-            <div id="productCarousel" class="carousel slide border rounded" data-bs-ride="true" data-bs-touch="true">
-              <div class="carousel-inner">
-                @php $imgs = $uploads ?? collect(); @endphp
-
-                @forelse($imgs as $upload)
-                  <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
-                    <img
-                      src="{{ url($upload->file_path) }}"
-                      class="d-block w-100"
-                      alt="{{ $product->title }} image {{ $loop->iteration }}"
-                      @if($loop->first) loading="eager" fetchpriority="high" @else loading="lazy" @endif
-                      style="aspect-ratio:1/1; object-fit:contain; background:#fff;"
-                      width="1000" height="1000"
-                    >
-                  </div>
-                @empty
-                  <div class="carousel-item active">
-                    <img
-                      src="{{ asset('resources/views/theme/marketi/assets/images/placeholder/product.png') }}"
-                      class="d-block w-100"
-                      alt="Placeholder image"
-                      loading="eager"
-                      style="aspect-ratio:1/1; object-fit:contain; background:#fff;"
-                      width="1000" height="1000"
-                    >
-                  </div>
-                @endforelse
-              </div>
-
-              @if($imgs->count() > 1)
-                <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev" aria-label="Previous">
-                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next" aria-label="Next">
-                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                </button>
-              @endif
-            </div>
-
-            {{-- Thumbnails --}}
-            @if($imgs->count() > 1)
-              <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
-                @foreach($imgs as $upload)
-                  <button
-                    class="p-0 border-0 bg-transparent"
-                    type="button"
-                    data-bs-target="#productCarousel"
-                    data-bs-slide-to="{{ $loop->index }}"
-                    aria-label="Go to image {{ $loop->iteration }}"
-                  >
-                    <img
-                      src="{{ url($upload->file_path) }}"
-                      class="img-thumbnail"
-                      alt="{{ $product->title }} thumbnail {{ $loop->iteration }}"
-                      loading="lazy"
-                      style="width:60px; height:60px; object-fit:cover;"
-                      width="60" height="60"
-                    >
-                  </button>
-                @endforeach
-              </div>
+        <nav class="rs-product__breadcrumbs" aria-label="Breadcrumb">
+            <a href="{{ url('/') }}">Home</a><span aria-hidden="true">/</span>
+            <a href="{{ route('shop') }}">Shop</a><span aria-hidden="true">/</span>
+            @if ($category)
+                <a href="{{ route('shops_filter', $category->slug) }}">{{ $category->name }}</a><span aria-hidden="true">/</span>
             @endif
-          </div>
+            <span aria-current="page">{{ $product->title }}</span>
+        </nav>
+        @auth
+            @if (auth()->user()->is_admin())
+                <div class="rs-product__edit"><a href="{{ route('edit_product', $product->id) }}">Edit product <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a></div>
+            @endif
+        @endauth
 
-          {{-- Details --}}
-          <div class="col-md-7">
-            <div class="card-body">
-              <div class="h4 fw-bold mb-2">{{ $product->title }}</div>
-              <p class="h5 text-primary mb-3">{{ price($product->cost) }}</p>
-              <hr>
-              <h5 class="mt-3 mb-2">Description</h5>
-              <p class="text-muted mb-4">{!! $product->meta_description !!}</p>
+        <div class="rs-product__overview">
+            <section class="rs-gallery" aria-label="Product images" data-product-gallery>
+                <div class="rs-gallery__stage">
+                    @if ($onSale)
+                        <span class="rs-gallery__sale">Save {{ round((1 - (float) $product->cost / (float) $product->marked_price) * 100) }}%</span>
+                    @endif
+                    @if ($mainImage)
+                        <a class="rs-gallery__zoom" href="{{ url($mainImage->file_path) }}" target="_blank" rel="noopener" data-gallery-zoom aria-label="Enlarge {{ $product->title }} image">
+                            <img id="product-main-image" src="{{ url($mainImage->file_path) }}" alt="{{ $product->title }}" width="800" height="800" fetchpriority="high">
+                            <span class="rs-gallery__zoom-icon"><i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i></span>
+                        </a>
+                    @else
+                        <div class="rs-gallery__empty"><i class="fa-regular fa-image" aria-hidden="true"></i><span>Product image coming soon</span></div>
+                    @endif
+                </div>
+                @if ($images->count() > 1)
+                    <div class="rs-gallery__thumbnails" aria-label="Choose a product image">
+                        @foreach ($images as $image)
+                            <a href="{{ url($image->file_path) }}" class="rs-gallery__thumbnail {{ $loop->first ? 'is-active' : '' }}" data-gallery-thumbnail data-image-alt="{{ $product->title }} — image {{ $loop->iteration }}" aria-label="View image {{ $loop->iteration }}" @if ($loop->first) aria-current="true" @endif>
+                                <img src="{{ url($image->file_path) }}" alt="{{ $product->title }} thumbnail {{ $loop->iteration }}" width="80" height="80" loading="lazy">
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
+                @if ($mainImage)
+                    <p class="rs-gallery__hint">Select an image to view it. Click the main image to enlarge.</p>
+                    <dialog class="rs-gallery__dialog" aria-label="Enlarged product image" data-gallery-dialog>
+                        <button type="button" data-gallery-close aria-label="Close enlarged image">&times;</button>
+                        <img src="{{ url($mainImage->file_path) }}" alt="{{ $product->title }}" width="1000" height="1000">
+                    </dialog>
+                @endif
+            </section>
 
-              <a href="{{ route('pregister', ['id' => $product->id]) }}" class="btn btn-primary btn-lg">
-                <i class="fa fa-shopping-cart me-2"></i> Buy Now
-              </a>
+            <section class="rs-product__summary" aria-labelledby="product-title">
+                @if ($category)<a class="rs-product__category" href="{{ route('shops_filter', $category->slug) }}">{{ $category->name }}</a>@endif
+                <h1 id="product-title">{{ $product->title }}</h1>
+                <div class="rs-product__stock {{ $inStock ? 'is-available' : '' }}"><span aria-hidden="true"></span>{{ $stockLabel }}</div>
+                <div class="rs-product__price">
+                    @if ($hasPrice)
+                        <strong>{{ $currency }} {{ number_format((float) $product->cost, 2) }}</strong>
+                        @if ($onSale)<del aria-label="Previous price">{{ $currency }} {{ number_format((float) $product->marked_price, 2) }}</del>@endif
+                    @else
+                        <strong>Contact us for a price</strong>
+                    @endif
+                </div>
+                @if ($onSale)<p class="rs-product__saving">You save {{ $currency }} {{ number_format((float) $product->marked_price - (float) $product->cost, 2) }}</p>@endif
+                @if ($product->meta_description)<p class="rs-product__intro">{{ strip_tags($product->meta_description) }}</p>@endif
+                <a class="rs-product__details-link" href="#product-details">View product details <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
+
+                <div class="rs-product__purchase">
+                    @if ($hasPrice && (! $stockKnown || $inStock))
+                        <a class="rs-product__button rs-product__button--primary" href="{{ route('pregister', ['id' => $product->id]) }}"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i> Buy Now</a>
+                    @elseif ($stockKnown && ! $inStock)
+                        <button class="rs-product__button rs-product__button--primary" type="button" disabled>Out of stock</button>
+                    @endif
+                    <a class="rs-product__button rs-product__button--outline" href="tel:{{ $phoneHref }}"><i class="fa-solid fa-phone" aria-hidden="true"></i> Enquire about this product</a>
+                </div>
+                <dl class="rs-product__meta">
+                    @if ($category)<div><dt>Category</dt><dd><a href="{{ route('shops_filter', $category->slug) }}">{{ $category->name }}</a></dd></div>@endif
+                    <div><dt>Availability</dt><dd>{{ $inStock ? (int) $product->quantity.' available' : $stockLabel }}</dd></div>
+                </dl>
+                <div class="rs-product__help"><i class="fa-solid fa-headset" aria-hidden="true"></i><div><strong>Need help choosing?</strong><p>Talk to our team at <a href="tel:{{ $phoneHref }}">{{ $phone }}</a></p></div></div>
+            </section>
+        </div>
+
+        <section class="rs-product__details" id="product-details" aria-label="Product details" data-product-tabs>
+            <nav class="rs-product__tabs" aria-label="Product information">
+                <a href="#product-description-panel" id="product-description-tab" data-product-tab>Product details</a>
+                <a href="#product-information-panel" id="product-information-tab" data-product-tab>Additional information</a>
+            </nav>
+            <div id="product-description-panel" class="rs-product__panel rs-product__description" data-product-panel>
+                <h2>Product details</h2>
+                @if (trim(strip_tags($product->description ?? '')) !== '' || preg_match('/<(img|video|iframe)\b/i', $product->description ?? ''))
+                    {!! preg_replace('/<h1(\s[^>]*)?>(.*?)<\/h1>/is', '<h2$1>$2</h2>', $product->description) !!}
+                @else
+                    <p>Contact our team for more information about {{ $product->title }}.</p>
+                @endif
             </div>
-          </div>
-        </div>
-      </div>
-
-      {{-- Full Description (keep a single H1 on the page: demote any H1 in the content to H2) --}}
-      <div class="card">
-        <div class="card-body">
-          {!! preg_replace('/<h1(\s[^>]*)?>(.*?)<\/h1>/is', '<h2$1>$2</h2>', $product->description) !!}
-        </div>
-      </div>
-
-      {{-- Related / category navigation --}}
-      @if($category)
-        <div class="d-flex align-items-center justify-content-between mt-4">
-          <a href="{{ route('shops_filter', $category->slug) }}" class="btn btn-outline-primary">
-            More {{ $category->name }} <i class="fa fa-arrow-right ms-2"></i>
-          </a>
-          <a href="{{ route('shop') }}" class="btn btn-outline-secondary">All Products</a>
-        </div>
-      @endif
-
+            <div id="product-information-panel" class="rs-product__panel" data-product-panel>
+                <h2>Additional information</h2>
+                <table class="rs-product__specifications"><tbody>
+                    <tr><th scope="row">Product</th><td>{{ $product->title }}</td></tr>
+                    @if ($category)<tr><th scope="row">Category</th><td>{{ $category->name }}</td></tr>@endif
+                    <tr><th scope="row">Price</th><td>{{ $hasPrice ? $currency.' '.number_format((float) $product->cost, 2) : 'Contact us for a price' }}</td></tr>
+                    <tr><th scope="row">Availability</th><td>{{ $stockLabel }}</td></tr>
+                </tbody></table>
+            </div>
+        </section>
+        <div class="rs-product__browse"><span>Keep exploring</span><a href="{{ $category ? route('shops_filter', $category->slug) : route('shop') }}">{{ $category ? 'More in '.$category->name : 'All products' }} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>
     </div>
-  </section>
-
-</main>
+</div>
 @endsection
 
 @push('scripts')
-<script>
-  // Apply data-background fallback if not set inline
-  document.querySelectorAll('[data-background]').forEach(function(el){
-    if (!el.style.backgroundImage) {
-      const bg = el.getAttribute('data-background');
-      if (bg) el.style.backgroundImage = 'url(' + bg + ')';
-    }
-  });
-</script>
+<script src="{{ asset('assets/js/product-details.js') }}?v=20260930" defer></script>
 @endpush

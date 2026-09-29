@@ -34,6 +34,7 @@ use App\Models\Chat;
 use App\Models\Transaction;
 use App\Models\Invoice;
 use App\Models\Upload;
+use App\Services\ProductImages;
 use App\Models\Revision;
 use App\Models\Dispute;
 use App\Models\Order;
@@ -450,6 +451,8 @@ public function deleteSales(Request $request){
 
 public function updatesingleProduct(Request $request)
 {
+  $request->validate(ProductImages::rules());
+
   try {
     $page = Post::find($request->page_id);
     if (! $page) {
@@ -480,9 +483,9 @@ public function updatesingleProduct(Request $request)
     }
     $page->meta_description = $request->meta_description;
     $page->updated_at = Carbon::now();
-    $page->save();
+    app(ProductImages::class)->save($page, $request);
 
-    return back()->withInput()->with('success', trans('Product updated'));
+    return back()->with('success', trans('Product updated'));
   } catch (\Throwable $e) {
     return back()->withInput()->with('error', 'Could not save product: '.$e->getMessage());
   }
@@ -836,7 +839,7 @@ public function addProduct(Request $request)
         'meta_title' => 'nullable|string|max:255',
         'meta_description' => 'nullable|string|max:255',
         'description' => 'nullable|string',
-    ]);
+    ] + ProductImages::rules());
 
     if ($validated->fails()) {
         return back()->withErrors($validated)->withInput();
@@ -871,9 +874,13 @@ public function addProduct(Request $request)
   }
 
 
-  Post::create($data);
+  try {
+    app(ProductImages::class)->save(new Post($data), $request);
+  } catch (\Throwable $exception) {
+    report($exception);
+    return back()->withInput()->with('error', 'Could not save the product and its images. Please try again.');
+  }
 
-  
   return redirect()->route('products')->with('success', trans('Product Created Successfully'));
 }
 

@@ -4,7 +4,7 @@
 @section('body-class', 'rsd-product-page')
 
 @section('page-css')
-<link rel="stylesheet" href="{{ asset('assets/css/product-form.css') }}?v=20260930">
+<link rel="stylesheet" href="{{ asset('assets/css/product-form.css') }}?v=20260930-2">
 @endsection
 
 @section('content')
@@ -30,7 +30,7 @@
 <div class="rsd-product-layout">
     <section class="rsd-panel rsd-product-card" aria-label="{{ $post ? 'Edit product' : 'Add product' }}">
         <div class="rsd-panel__body">
-            <form id="product-form" method="POST" action="{{ $post ? route('updatesingle_product') : route('anew_product') }}">
+            <form id="product-form" method="POST" action="{{ $post ? route('updatesingle_product') : route('anew_product') }}" enctype="multipart/form-data">
                 @csrf
                 @if ($post)
                     <input type="hidden" name="page_id" value="{{ $post->id }}">
@@ -43,6 +43,37 @@
                     <input id="product-name" type="text" class="rsd-form-control @error('title') is-invalid @enderror" name="title" placeholder="Enter product name" value="{{ old('title', $post->title ?? '') }}" maxlength="255" required>
                     @error('title')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                 </div>
+
+                <fieldset class="rsd-product-images">
+                    <legend>Product images</legend>
+                    <p class="rsd-image-help">Upload JPG, PNG or WebP images, up to 2 MB each. The main image appears in the shop and on the product page.</p>
+                    <div class="rsd-image-fields">
+                        <div class="rsd-image-upload">
+                            <label for="product-image">Main product image</label>
+                            <input id="product-image" type="file" name="product_image" accept="image/jpeg,image/png,image/webp" aria-describedby="product-image-help" data-image-input data-preview="product-image-preview">
+                            <small id="product-image-help">{{ $post ? 'Choose an image to replace the main photo. The previous photo stays in the gallery.' : 'Choose the main photo for this product.' }}</small>
+                            @error('product_image')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            <div id="product-image-preview" class="rsd-image-previews" aria-live="polite"></div>
+                        </div>
+                        <div class="rsd-image-upload">
+                            <label for="product-gallery">Gallery images (optional)</label>
+                            <input id="product-gallery" type="file" name="gallery_images[]" accept="image/jpeg,image/png,image/webp" multiple aria-describedby="product-gallery-help" data-image-input data-preview="product-gallery-preview">
+                            <small id="product-gallery-help">Add up to 8 extra photos at a time. Existing gallery images are kept.</small>
+                            @error('gallery_images')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            @error('gallery_images.*')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            <div id="product-gallery-preview" class="rsd-image-previews" aria-live="polite"></div>
+                        </div>
+                    </div>
+                    @if ($post && $post->uploads->isNotEmpty())
+                        <p class="rsd-image-current-label">Current images</p>
+                        <div class="rsd-image-previews">
+                            @foreach ($post->uploads as $upload)
+                                <figure><img src="{{ url($upload->file_path) }}" alt="{{ $post->title }} image {{ $loop->iteration }}" width="110" height="110"><figcaption>{{ $loop->first ? 'Main image' : 'Gallery image' }}</figcaption></figure>
+                            @endforeach
+                        </div>
+                    @endif
+                    @if ($errors->any())<p class="rsd-image-help">If you selected new images, please select them again before saving.</p>@endif
+                </fieldset>
 
                 <div class="rsd-form-group">
                     <label for="product-price">Price (KES)</label>
@@ -116,5 +147,5 @@
 
 @section('page-js')
 <script src="https://cdn.jsdelivr.net/npm/tinymce@8.9.2/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
-<script src="{{ asset('assets/js/product-form.js') }}?v=20260930"></script>
+<script src="{{ asset('assets/js/product-form.js') }}?v=20260930-2"></script>
 @endsection

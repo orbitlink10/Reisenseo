@@ -4,6 +4,37 @@
     var form = document.getElementById('product-form');
     if (!form) return;
 
+    form.querySelectorAll('[data-image-input]').forEach(function (input) {
+        var preview = document.getElementById(input.dataset.preview);
+        var urls = [];
+        input.addEventListener('change', function () {
+            urls.forEach(function (url) { URL.revokeObjectURL(url); });
+            urls = [];
+            preview.replaceChildren();
+            input.setCustomValidity('');
+            var files = Array.from(input.files);
+            if (input.multiple && files.length > 8) {
+                input.setCustomValidity('Choose up to 8 gallery images at a time.');
+            }
+            files.forEach(function (file) {
+                if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 2048 * 1024) {
+                    input.setCustomValidity('Choose JPG, PNG or WebP images up to 2 MB each.');
+                    return;
+                }
+                var figure = document.createElement('figure');
+                var image = document.createElement('img');
+                var caption = document.createElement('figcaption');
+                image.src = URL.createObjectURL(file);
+                urls.push(image.src);
+                image.alt = file.name;
+                caption.textContent = file.name;
+                figure.append(image, caption);
+                preview.appendChild(figure);
+            });
+            if (!input.checkValidity()) input.reportValidity();
+        });
+    });
+
     var category = document.getElementById('product-category');
     var subcategory = document.getElementById('product-subcategory');
 

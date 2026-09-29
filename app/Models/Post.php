@@ -100,7 +100,7 @@ class Post extends Model
 
     public function uploads(){
 
-        return $this->hasMany(Upload::class, 'post_id');
+        return $this->hasMany(Upload::class, 'post_id')->orderByDesc('status')->orderBy('id');
     }
 
 }

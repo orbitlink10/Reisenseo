@@ -534,8 +534,8 @@ public function getchat(Request $request)
 
 public function shopDescription($slug)
   {
-    $product = Post::whereSlug($slug)->first();
-    $uploads = Upload::wherePostId($product->id)->get();
+    $product = Post::whereSlug($slug)->whereType('product')->firstOrFail();
+    $uploads = $product->uploads;
     
     return view('theme.'.get_option(site_id().'_theme').'.product_details', compact('product', 'uploads'));
   }
