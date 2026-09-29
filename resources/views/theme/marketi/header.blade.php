@@ -20,6 +20,11 @@
         $ogDesc    = trim($__env->yieldContent('og_description')) ?: (get_option(site_id().'_meta_description'));
         $ogImage   = trim($__env->yieldContent('og_image')) ?: (logo_url());
         $siteName  = get_option(site_id().'_site_title');
+
+        $sitePhone = site_option('phone', '+254 714 804 532');
+        $siteEmail = site_option('contact_email', 'info@reisenseo.com');
+        $siteAddress = site_option('contact_address', 'Nairobi, Kijabe Street, Norfolk Towers, Kenya');
+        $sitePhoneHref = preg_replace('/[^0-9+]/', '', $sitePhone);
     @endphp
     <meta property="og:type" content="@yield('og_type','website')">
     <meta property="og:title" content="{{ $ogTitle }}">
@@ -78,16 +83,16 @@
           <ul class="info list-unstyled d-flex flex-wrap mb-0">
             <li class="me-4">
               <i class="fa-solid fa-paper-plane" aria-hidden="true"></i>
-              <a href="mailto:info@reisenseo.com">info@reisenseo.com</a>
+              <a href="mailto:{{ $siteEmail }}">{{ $siteEmail }}</a>
             </li>
             <li class="bor-left ms-4 ps-4">
               <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-              <span aria-label="Our address">Nairobi, Kijabe Street, Norfolk Towers, Kenya</span>
+              <span aria-label="Our address">{{ $siteAddress }}</span>
             </li>
           </ul>
           <ul class="link-info list-unstyled d-flex align-items-center mb-0">
             <li class="bor-right me-3 pe-3">
-              <a href="tel:+254714804532" aria-label="Call us">+254 714 804 532</a>
+              <a href="tel:{{ $sitePhoneHref }}" aria-label="Call us">{{ $sitePhone }}</a>
             </li>
             <li>
               <a href="{{ url('shop') }}" aria-label="Shop networking and CCTV equipment">Shop Equipment</a>
@@ -111,18 +116,34 @@
           {{-- Desktop menu --}}
           <div class="main-menu d-none d-lg-block" role="navigation" aria-label="Primary">
             @php
-              $navCategories = [
-                ['label' => 'Routers', 'slug' => 'networking-tools-accessories-routers'],
-                ['label' => 'Network Switches', 'slug' => 'networking-tools-accessories-switches'],
-                ['label' => 'Wireless Access Points', 'slug' => 'networking-tools-accessories-access-points'],
-                ['label' => 'Wireless Outdoor CPE', 'slug' => 'networking-tools-accessories-wireless-radios'],
-                ['label' => 'Ethernet Cables', 'slug' => 'networking-tools-accessories-ethernet-cables'],
-                ['label' => 'CCTV Security Cameras', 'slug' => 'cameras'],
-                ['label' => 'Network Video Recorders (NVR)', 'slug' => 'nvr'],
-                ['label' => 'Digital Video Recorders (DVR)', 'slug' => 'dvr'],
-                ['label' => 'Ubiquiti Network Devices', 'slug' => 'ubiquiti-network-devices-for-sale-in-kenya'],
-                ['label' => 'Dahua CCTV Cameras', 'slug' => 'dahua-cctv-security-cameras'],
-              ];
+              $menuCategoryIds = array_map('intval', site_option_array('menu_categories'));
+              $navCategories = [];
+              if (!empty($menuCategoryIds)) {
+                $menuCategoryModels = \App\Models\Category::whereIn('id', $menuCategoryIds)->get()->keyBy('id');
+                foreach ($menuCategoryIds as $menuCategoryId) {
+                  if ($menuCategoryModels->has($menuCategoryId)) {
+                    $menuCategory = $menuCategoryModels->get($menuCategoryId);
+                    $navCategories[] = [
+                      'label' => $menuCategory->name,
+                      'slug' => $menuCategory->category_slug ?: $menuCategory->slug,
+                    ];
+                  }
+                }
+              }
+              if (empty($navCategories)) {
+                $navCategories = [
+                  ['label' => 'Routers', 'slug' => 'networking-tools-accessories-routers'],
+                  ['label' => 'Network Switches', 'slug' => 'networking-tools-accessories-switches'],
+                  ['label' => 'Wireless Access Points', 'slug' => 'networking-tools-accessories-access-points'],
+                  ['label' => 'Wireless Outdoor CPE', 'slug' => 'networking-tools-accessories-wireless-radios'],
+                  ['label' => 'Ethernet Cables', 'slug' => 'networking-tools-accessories-ethernet-cables'],
+                  ['label' => 'CCTV Security Cameras', 'slug' => 'cameras'],
+                  ['label' => 'Network Video Recorders (NVR)', 'slug' => 'nvr'],
+                  ['label' => 'Digital Video Recorders (DVR)', 'slug' => 'dvr'],
+                  ['label' => 'Ubiquiti Network Devices', 'slug' => 'ubiquiti-network-devices-for-sale-in-kenya'],
+                  ['label' => 'Dahua CCTV Cameras', 'slug' => 'dahua-cctv-security-cameras'],
+                ];
+              }
             @endphp
             <nav>
               <ul class="list-unstyled d-flex align-items-center mb-0">
@@ -259,13 +280,13 @@
       "name": "{{ addslashes(get_option(site_id().'_site_name')) }}",
       "url": "{{ url('/') }}",
       "logo": "{{ logo_url() }}",
-      "email": "info@reisenseo.com",
-      "telephone": "+254714804532",
+      "email": "{{ $siteEmail }}",
+      "telephone": "{{ $sitePhoneHref }}",
       "priceRange": "KES",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Nairobi",
-        "streetAddress": "Kijabe Street, Norfolk Towers",
+        "streetAddress": "{{ $siteAddress }}",
         "addressCountry": "KE"
       }
     }

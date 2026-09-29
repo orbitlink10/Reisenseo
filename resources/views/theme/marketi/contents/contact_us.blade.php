@@ -28,7 +28,7 @@
                             </div>
                             <h4>Chat to support</h4>
                             <p>Speak to our friendly team.</p>
-                            <a href="mailto:info@reisenseo.com">info@reisenseo.com</a>
+                            <a href="mailto:{{ $siteEmail }}">{{ $siteEmail }}</a>
                         </div>
                     </div>
                     <div class="col-lg-4">
@@ -40,7 +40,7 @@
                             </div>
                             <h4>Visit us</h4>
                             <p>Visit our office HQ.</p>
-                            <span>Nairobi, Kijabe Street, Norfolk Towers, Kenya</span>
+                            <span>{{ $siteAddress }}</span>
                         </div>
                     </div>
                     <div class="col-lg-4">
@@ -52,7 +52,7 @@
                             </div>
                             <h4>Call us</h4>
                             <p>Mon-Fri from 8am to 5pm.</p>
-                            <a href="tel:+254714804532">  +254 714 804 532</a>
+                            <a href="tel:{{ $sitePhoneHref }}">{{ $sitePhone }}</a>
                         </div>
                     </div>
                 </div>

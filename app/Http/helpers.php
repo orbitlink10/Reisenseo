@@ -524,6 +524,30 @@ return $data;
       return $option_key;
     }
 
+    /**
+     * Get a site-scoped option value, falling back to a default when unset.
+     */
+    function site_option($key, $default = ''){
+      $full_key = site_id().'_'.$key;
+      $value = get_option($full_key);
+      if($value === null || $value === '' || $value === $full_key){
+        return $default;
+      }
+      return $value;
+    }
+
+    /**
+     * Get a site-scoped option stored as JSON, returned as an array.
+     */
+    function site_option_array($key){
+      $value = site_option($key, '');
+      if(empty($value)){
+        return [];
+      }
+      $decoded = json_decode($value, true);
+      return is_array($decoded) ? $decoded : [];
+    }
+
 
 
 

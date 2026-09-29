@@ -63,11 +63,11 @@
                   <h4 class="title mb-20 text-white">Contact Info</h4>
                   <p class="mt-4">
                     Email:<br>
-                    <a href="mailto:info@reisenseo.com">info@reisenseo.com</a><br><br>
+                    <a href="mailto:{{ $siteEmail }}">{{ $siteEmail }}</a><br><br>
                     Phone:<br>
-                    <a href="tel:+254714804532">+254 714 804 532</a><br><br>
+                    <a href="tel:{{ $sitePhoneHref }}">{{ $sitePhone }}</a><br><br>
                     Address:<br>
-                    Nairobi, Kijabe Street, Norfolk Towers, Kenya
+                    {{ $siteAddress }}
                   </p>
                 </div>
               </div>

@@ -4160,7 +4160,8 @@ public function settings(){
 }
 
 $user =  $user_id = Auth::user();
-return view('admin.settings', compact('user'));
+$categories = Category::where('cat_type', 4)->orderBy('name')->get();
+return view('admin.settings', compact('user', 'categories'));
 }
 
 //user settings
@@ -4754,6 +4755,12 @@ public function updateOptions(Request $request) {
 $user = Auth::user();
 $inputs = Arr::except($request->input(), ['_token']);
 foreach($inputs as $key => $value) {
+      if (is_array($value)) {
+        $value = array_values(array_filter($value, function ($item) {
+          return $item !== '' && $item !== null;
+        }));
+        $value = json_encode($value);
+      }
       $option = Option::firstOrCreate(['option_key' => $key]);
       $option ->option_value = $value;
       $option->save();
@@ -4765,7 +4772,7 @@ foreach($inputs as $key => $value) {
       return ['success'=>1, 'msg'=>'update made successfully'];
     } 
 
-
+    return back()->with('success', trans('Settings saved'));
 }
 
 

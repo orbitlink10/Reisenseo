@@ -216,15 +216,38 @@
   <div class="brand-area pt-70">
     <div class="container">
       <h5 class="brand__title mb-40">Browse Networking &amp; CCTV Categories</h5>
+      @php
+        $homeCategoryIds = array_map('intval', site_option_array('home_categories'));
+        $homeCategoryLinks = [];
+        if (!empty($homeCategoryIds)) {
+          $homeCategoryModels = \App\Models\Category::whereIn('id', $homeCategoryIds)->get()->keyBy('id');
+          foreach ($homeCategoryIds as $homeCategoryId) {
+            if ($homeCategoryModels->has($homeCategoryId)) {
+              $homeCategory = $homeCategoryModels->get($homeCategoryId);
+              $homeCategoryLinks[] = [
+                'label' => $homeCategory->name,
+                'slug' => $homeCategory->category_slug ?: $homeCategory->slug,
+              ];
+            }
+          }
+        }
+        if (empty($homeCategoryLinks)) {
+          $homeCategoryLinks = [
+            ['label' => 'Routers', 'slug' => 'networking-tools-accessories-routers'],
+            ['label' => 'Switches', 'slug' => 'networking-tools-accessories-switches'],
+            ['label' => 'Access Points', 'slug' => 'networking-tools-accessories-access-points'],
+            ['label' => 'Outdoor CPE', 'slug' => 'networking-tools-accessories-wireless-radios'],
+            ['label' => 'Network Cables', 'slug' => 'networking-tools-accessories-ethernet-cables'],
+            ['label' => 'CCTV Cameras', 'slug' => 'cameras'],
+            ['label' => 'NVRs', 'slug' => 'nvr'],
+            ['label' => 'DVRs', 'slug' => 'dvr'],
+          ];
+        }
+      @endphp
       <div class="d-flex flex-wrap justify-content-center gap-3">
-        <a class="btn-one" href="{{ route('shops_filter', 'networking-tools-accessories-routers') }}">Routers</a>
-        <a class="btn-one" href="{{ route('shops_filter', 'networking-tools-accessories-switches') }}">Switches</a>
-        <a class="btn-one" href="{{ route('shops_filter', 'networking-tools-accessories-access-points') }}">Access Points</a>
-        <a class="btn-one" href="{{ route('shops_filter', 'networking-tools-accessories-wireless-radios') }}">Outdoor CPE</a>
-        <a class="btn-one" href="{{ route('shops_filter', 'networking-tools-accessories-ethernet-cables') }}">Network Cables</a>
-        <a class="btn-one" href="{{ route('shops_filter', 'cameras') }}">CCTV Cameras</a>
-        <a class="btn-one" href="{{ route('shops_filter', 'nvr') }}">NVRs</a>
-        <a class="btn-one" href="{{ route('shops_filter', 'dvr') }}">DVRs</a>
+        @foreach($homeCategoryLinks as $link)
+          <a class="btn-one" href="{{ route('shops_filter', $link['slug']) }}">{{ $link['label'] }}</a>
+        @endforeach
       </div>
     </div>
   </div>

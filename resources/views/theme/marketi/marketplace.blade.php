@@ -10,6 +10,11 @@
         $pageTitle = isset($currentCategory) && $currentCategory
             ? $currentCategory->name . ' – Best Prices in Kenya | ' . $siteName
             : ($siteName . ' – Networking Equipment & CCTV Cameras in Kenya');
+
+        $sitePhone = site_option('phone', '+254 714 804 532');
+        $siteEmail = site_option('contact_email', 'info@reisenseo.com');
+        $siteAddress = site_option('contact_address', 'Nairobi, Kijabe Street, Norfolk Towers, Kenya');
+        $sitePhoneHref = preg_replace('/[^0-9+]/', '', $sitePhone);
     @endphp
     <title>{{ $pageTitle }}</title>
     <meta name="description" content="{{ isset($currentCategory) && $currentCategory && !empty($currentCategory->meta_description) ? $currentCategory->meta_description : 'Shop networking equipment, CCTV cameras, POS systems, routers and more in Kenya at ' . $siteName . '. Best prices with fast delivery.' }}">
@@ -349,7 +354,7 @@
 
 {{-- Sticky contact banner (CTC-style) --}}
 <div class="simple-banner">
-    Call us on <a href="tel:+254714804532">+254 714 804 532</a> or email us on <a href="mailto:info@reisenseo.com">info@reisenseo.com</a>
+    Call us on <a href="tel:{{ $sitePhoneHref }}">{{ $sitePhone }}</a> or email us on <a href="mailto:{{ $siteEmail }}">{{ $siteEmail }}</a>
 </div>
 
 {{-- Green top-bar (CTC-style) --}}
@@ -357,8 +362,8 @@
     <div class="container">
         <div class="ctc-topbar__inner">
             <div class="ctc-topbar__left">
-                <a href="tel:+254714804532"><i class="fa-solid fa-phone"></i>+254 714 804 532</a>
-                <a href="mailto:info@reisenseo.com"><i class="fa-solid fa-envelope"></i>info@reisenseo.com</a>
+                <a href="tel:{{ $sitePhoneHref }}"><i class="fa-solid fa-phone"></i>{{ $sitePhone }}</a>
+                <a href="mailto:{{ $siteEmail }}"><i class="fa-solid fa-envelope"></i>{{ $siteEmail }}</a>
             </div>
             <div class="ctc-topbar__right">
                 <span><i class="fa-solid fa-truck"></i> Nationwide Delivery</span>
@@ -542,9 +547,9 @@
             <div>
                 <h4>Contact Us</h4>
                 <ul>
-                    <li><i class="fa-solid fa-location-dot me-2"></i> Nairobi, Kijabe Street, Norfolk Towers, Kenya</li>
-                    <li><i class="fa-solid fa-phone me-2"></i> <a href="tel:+254714804532">+254 714 804 532</a></li>
-                    <li><i class="fa-solid fa-envelope me-2"></i> <a href="mailto:info@reisenseo.com">info@reisenseo.com</a></li>
+                    <li><i class="fa-solid fa-location-dot me-2"></i>{{ $siteAddress }}</li>
+                    <li><i class="fa-solid fa-phone me-2"></i> <a href="tel:{{ $sitePhoneHref }}">{{ $sitePhone }}</a></li>
+                    <li><i class="fa-solid fa-envelope me-2"></i> <a href="mailto:{{ $siteEmail }}">{{ $siteEmail }}</a></li>
                 </ul>
             </div>
         </div>
