@@ -8,15 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('posts', function (Blueprint $table) {
-            $table->string('meta_title', 255)->nullable()->after('title');
-        });
+        if (! Schema::hasColumn('posts', 'meta_title')) {
+            Schema::table('posts', function (Blueprint $table) {
+                $table->string('meta_title', 255)->nullable()->after('title');
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('posts', function (Blueprint $table) {
-            $table->dropColumn('meta_title');
-        });
+        if (Schema::hasColumn('posts', 'meta_title')) {
+            Schema::table('posts', function (Blueprint $table) {
+                $table->dropColumn('meta_title');
+            });
+        }
     }
 };

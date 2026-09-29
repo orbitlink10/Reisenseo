@@ -172,7 +172,7 @@
           {{-- Details --}}
           <div class="col-md-7">
             <div class="card-body">
-              <h2 class="h4 fw-bold mb-2">{{ $product->title }}</h2>
+              <div class="h4 fw-bold mb-2">{{ $product->title }}</div>
               <p class="h5 text-primary mb-3">{{ price($product->cost) }}</p>
               <hr>
               <h5 class="mt-3 mb-2">Description</h5>
@@ -186,10 +186,10 @@
         </div>
       </div>
 
-      {{-- Full Description --}}
+      {{-- Full Description (keep a single H1 on the page: demote any H1 in the content to H2) --}}
       <div class="card">
         <div class="card-body">
-          {!! $product->description !!}
+          {!! preg_replace('/<h1(\s[^>]*)?>(.*?)<\/h1>/is', '<h2$1>$2</h2>', $product->description) !!}
         </div>
       </div>
 
