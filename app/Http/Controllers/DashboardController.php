@@ -1237,35 +1237,20 @@ public function search(Request $request)
 {
   $term = trim((string) $request->input('search', ''));
 
-  $orders = collect();
-  $users = collect();
-  $products = collect();
   $categories = collect();
 
   if ($term !== '') {
-    $orders = Order::where('id', 'like', "%{$term}%")
-      ->orWhere('title', 'like', "%{$term}%")
-      ->orderBy('id', 'desc')
-      ->take(25)->get();
-
-    $users = User::where('name', 'like', "%{$term}%")
-      ->orWhere('email', 'like', "%{$term}%")
-      ->orWhere('nickname', 'like', "%{$term}%")
-      ->orderBy('id', 'desc')
-      ->take(25)->get();
-
-    $products = Post::where('type', 'product')
-      ->where('title', 'like', "%{$term}%")
-      ->orderBy('id', 'desc')
-      ->take(25)->get();
-
     $categories = Category::where('cat_type', 4)
-      ->where('name', 'like', "%{$term}%")
+      ->where(function ($query) use ($term) {
+        $query->where('name', 'like', "%{$term}%")
+          ->orWhere('category_slug', 'like', "%{$term}%")
+          ->orWhere('slug', 'like', "%{$term}%");
+      })
       ->orderBy('name')
-      ->take(25)->get();
+      ->take(50)->get();
   }
 
-  return view('admin.search', compact('term', 'orders', 'users', 'products', 'categories'));
+  return view('admin.search', compact('term', 'categories'));
 }
 
 

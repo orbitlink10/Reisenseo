@@ -9,7 +9,7 @@
 
     <form class="rsd-search" action="{{ route('search') }}" method="GET" role="search">
         <button type="submit" class="rsd-search__submit" aria-label="Search"><i class="fa fa-search"></i></button>
-        <input type="text" name="search" value="{{ request()->routeIs('search') ? request('search') : '' }}" placeholder="Search orders, users, products..." autocomplete="off">
+        <input type="text" name="search" value="{{ request()->routeIs('search') ? request('search') : '' }}" placeholder="Search categories..." autocomplete="off">
     </form>
 
     <div class="rsd-navbar__right">
