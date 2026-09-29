@@ -460,8 +460,12 @@ public function updatesingleProduct(Request $request)
     $page->category_id = $request->category_id ;
     $page->description = $request->description;
     $page->cost        = $request->cost;
-    $page->marked_price = ($request->marked_price === '' || $request->marked_price === null) ? null : $request->marked_price;
-    $page->quantity    = $request->quantity ?? 0;
+    if (Schema::hasColumn('posts', 'marked_price')) {
+      $page->marked_price = ($request->marked_price === '' || $request->marked_price === null) ? null : $request->marked_price;
+    }
+    if (Schema::hasColumn('posts', 'quantity')) {
+      $page->quantity = $request->quantity ?? 0;
+    }
     $page->sub_category = $request->sub_category;
     $page->show_in_header_menu = $request->show_in_header_menu;
     $page->show_in_footer_menu = $request->show_in_footer_menu;
@@ -851,8 +855,6 @@ public function addProduct(Request $request)
     'cost'           => $request->cost,
     'writer_id'      => $user_id,
     'type'           => 'product',
-    'marked_price'   => $request->marked_price,
-    'quantity'       => $request->quantity ?? 0,
     'sub_category'   => $request->sub_category,
     'meta_description' => $request->meta_description,
 
@@ -860,6 +862,12 @@ public function addProduct(Request $request)
 
   if (Schema::hasColumn('posts', 'meta_title')) {
     $data['meta_title'] = $request->meta_title;
+  }
+  if (Schema::hasColumn('posts', 'marked_price')) {
+    $data['marked_price'] = ($request->marked_price === '' || $request->marked_price === null) ? null : $request->marked_price;
+  }
+  if (Schema::hasColumn('posts', 'quantity')) {
+    $data['quantity'] = $request->quantity ?? 0;
   }
 
 
