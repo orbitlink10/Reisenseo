@@ -57,6 +57,7 @@ use Illuminate\Support\Facades\Mail;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
 {
@@ -698,12 +699,14 @@ public function products(Request $request)
 {
   $posts  = Post::whereNotNull('slug')->whereType('product')->orderBy('id', 'desc')->paginate(20);
   $categories = Category::where('cat_type',4)->get();
+  $subCategories = Sub_category::whereIn('cat_id', $categories->pluck('id'))->orderBy('name')->get();
   $sites = Website::all();
+  $pages = Page::all();
 
   if($request->site_id){
    $posts  = Post::whereNotNull('slug')->whereType('product')->whereSiteId($request->site_id)->orderBy('id', 'desc')->paginate(20);
  }
- return view('admin.products', compact('posts', 'categories', 'sites'));
+ return view('admin.products', compact('posts', 'categories', 'subCategories', 'sites', 'pages'));
 }
 
 
@@ -791,10 +794,16 @@ public function addTraining(Request $request)
 public function addProduct(Request $request)
 {
   $validated = Validator::make($request->all(), [
-        'title' => 'bail|required|string',
-        'category_id' => 'bail|required',
-        'site_id' => 'bail|required',
-        'cost' => 'bail|required',
+        'title' => 'bail|required|string|max:255',
+        'category_id' => ['bail', 'required', 'integer', Rule::exists('categories', 'id')->where('cat_type', 4)],
+        'sub_category' => ['bail', 'nullable', 'integer', Rule::exists('sub_categories', 'id')->where('cat_id', $request->category_id)],
+        'site_id' => 'bail|required|integer|exists:websites,id',
+        'parent_page' => 'nullable|integer|exists:pages,id',
+        'cost' => 'bail|required|numeric|min:0|max:9999999999.99',
+        'marked_price' => 'nullable|numeric|min:0|max:9999999999.99',
+        'quantity' => 'nullable|integer|min:0|max:2147483647',
+        'meta_description' => 'nullable|string|max:255',
+        'description' => 'nullable|string',
     ]);
 
     if ($validated->fails()) {
@@ -814,6 +823,10 @@ public function addProduct(Request $request)
     'cost'           => $request->cost,
     'writer_id'      => $user_id,
     'type'           => 'product',
+    'marked_price'   => $request->marked_price,
+    'quantity'       => $request->quantity ?? 0,
+    'sub_category'   => $request->sub_category,
+    'meta_description' => $request->meta_description,
 
   ];
 
@@ -821,7 +834,7 @@ public function addProduct(Request $request)
   Post::create($data);
 
   
-  return back()->withInput()->with('success', trans('Product Created Successfully'));
+  return redirect()->route('products')->with('success', trans('Product Created Successfully'));
 }
 
 

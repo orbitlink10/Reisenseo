@@ -20,7 +20,7 @@
 
     @yield('page-css')
 </head>
-<body class="rsd-body">
+<body class="rsd-body @yield('body-class')">
 
     @include('dashboard.partials.sidebar')
 
