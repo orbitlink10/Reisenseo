@@ -450,32 +450,38 @@ public function deleteSales(Request $request){
 
 public function updatesingleProduct(Request $request)
 {
+  try {
+    $page = Post::find($request->page_id);
+    if (! $page) {
+      return back()->withInput()->with('error', 'Product not found.');
+    }
 
-  $page = Post::find($request->page_id);
-  $page->title       = $request->title;
-  $page->category_id = $request->category_id ;
-  $page->description = $request->description;
-  $page->cost        = $request->cost;
-  $page->marked_price = $request->marked_price;
-  $page->quantity    = $request->quantity ?? 0;
-  $page->sub_category = $request->sub_category;
-  $page->show_in_header_menu = $request->show_in_header_menu;
-  $page->show_in_footer_menu = $request->show_in_footer_menu;
-  $page->type = $request->post_type;
-  $page->keywords = $request->keywords;
-  $page->parent_page = $request->parent_page;
-  $page->site_id = $request->site_id;
-  $page->ti_icon = $request->ti_icon;
-  $page->demo_url = $request->demo_url;
-  if (Schema::hasColumn('posts', 'meta_title')) {
-    $page->meta_title = $request->meta_title;
+    $page->title       = $request->title;
+    $page->category_id = $request->category_id ;
+    $page->description = $request->description;
+    $page->cost        = $request->cost;
+    $page->marked_price = ($request->marked_price === '' || $request->marked_price === null) ? null : $request->marked_price;
+    $page->quantity    = $request->quantity ?? 0;
+    $page->sub_category = $request->sub_category;
+    $page->show_in_header_menu = $request->show_in_header_menu;
+    $page->show_in_footer_menu = $request->show_in_footer_menu;
+    $page->type = $request->post_type ?: 'product';
+    $page->keywords = $request->keywords;
+    $page->parent_page = $request->filled('parent_page') ? $request->parent_page : ($page->parent_page ?: 6);
+    $page->site_id = $request->filled('site_id') ? $request->site_id : $page->site_id;
+    $page->ti_icon = $request->ti_icon;
+    $page->demo_url = $request->demo_url;
+    if (Schema::hasColumn('posts', 'meta_title')) {
+      $page->meta_title = $request->meta_title;
+    }
+    $page->meta_description = $request->meta_description;
+    $page->updated_at = Carbon::now();
+    $page->save();
+
+    return back()->withInput()->with('success', trans('Product updated'));
+  } catch (\Throwable $e) {
+    return back()->withInput()->with('error', 'Could not save product: '.$e->getMessage());
   }
-  $page->meta_description = $request->meta_description;
-  $page->updated_at = Carbon::now();
-  $page->save();
-
-
-  return back()->withInput()->with('success', trans('User updated'));
 }
 
 
@@ -840,7 +846,7 @@ public function addProduct(Request $request)
     'category_id'    => $request->category_id,
     'description'    => $request->description,
     'site_id'        => $request->site_id,
-    'parent_page'    => $request->parent_page,
+    'parent_page'    => $request->filled('parent_page') ? $request->parent_page : 6,
     'ti_icon'        => $request->ti_icon,
     'cost'           => $request->cost,
     'writer_id'      => $user_id,
