@@ -569,6 +569,8 @@ h1, h2, h3, h4, h5, h6, p { margin: 0; }
     margin-bottom: 7px;
 }
 
+.rsd-required { color: #dc2626; }
+
 .rsd-form-control {
     width: 100%;
     padding: 11px 14px;

@@ -1020,6 +1020,56 @@ public function categories(Request $request){
 
 }
 
+public function createCategoryForm()
+{
+  return view('admin.category_create', ['category' => null]);
+}
+
+public function storeCategory(Request $request)
+{
+  $validated = $request->validate([
+    'name'             => 'required|string|max:255',
+    'meta_description' => 'nullable|string|max:255',
+    'description'      => 'nullable|string',
+    'photo'            => 'nullable|image|max:4096',
+  ]);
+
+  $slug = unique_slugu($validated['name']);
+
+  $category = Category::create([
+    'name'             => $validated['name'],
+    'meta_description' => $validated['meta_description'] ?? null,
+    'description'      => $validated['description'] ?? null,
+    'cat_type'         => 4,
+    'slug'             => $slug,
+    'category_slug'    => $slug,
+  ]);
+
+  if ($request->hasFile('photo')) {
+    $this->storeCategoryPhoto($category, $request->file('photo'));
+  }
+
+  return redirect()->route('categories')->with('success', trans('category added'));
+}
+
+protected function storeCategoryPhoto(Category $category, $file)
+{
+  $fileName = $category->id.'_'.$file->getClientOriginalName();
+  $filePath = 'uploads/logo/'.$fileName;
+  $is_uploaded = current_disk()->put($filePath, file_get_contents($file));
+
+  if ($is_uploaded) {
+    if (get_option(site_id().'_default_storage') == 'public') {
+      $category->photo_url = get_option(site_id().'_main_site_url').'/storage/'.$filePath;
+    } else {
+      Storage::disk('public')->put($filePath, file_get_contents($file));
+      $category->photo_url = 'https://awasam.s3.amazonaws.com/'.$filePath;
+    }
+
+    $category->save();
+  }
+}
+
            //adjust prices
 public function adjustPrices(Request $request){
   $order = Order::find($request->order_id);
@@ -4299,16 +4349,10 @@ return back()->withInput()->with('success', trans('paper type added added'));
 
 
 public function editCategory($id){
-  
-  $user_id  = Auth::user()->id;
-  $tasks    = Service::orderBy('id', 'desc')->paginate(200);
-  $categories = Category::where('cat_type',4)->orderBy('id', 'desc')->paginate(200);
-  
 
-  $sub_categories = Sub_category::orderBy('id', 'desc')->paginate(200);
   $category = Category::findOrFail($id);
-  // dd($category->description);
-  return view('admin.edit_category', compact('category','tasks','sub_categories'));
+
+  return view('admin.category_create', compact('category'));
 }
 
 
@@ -4317,48 +4361,29 @@ public function editCategory($id){
 
 public function updateCategory(Request $request)
 {
-  
-$slug = unique_slugu($request->input('name'));
 
-$user = Auth::user();
+$validated = $request->validate([
+  'name'             => 'required|string|max:255',
+  'meta_description' => 'nullable|string|max:255',
+  'description'      => 'nullable|string',
+  'photo'            => 'nullable|image|max:4096',
+]);
 
-$cat = Category::find($request->cat_id);
+$slug = unique_slugu($validated['name']);
 
-$cat->name = $request->input('name');
-$cat->display_name = $request->display_name;
-$cat->description  = $request->description;
-$cat->meta_description  = $request->meta_description;
-$cat->category_slug  = $slug;
-$cat->pvalue = $request->pvalue;
-$cat->cat_type =$request->input('cat_type');
+$cat = Category::findOrFail($request->cat_id);
 
-// dd($cat);
+$cat->name = $validated['name'];
+$cat->description = $validated['description'] ?? null;
+$cat->meta_description = $validated['meta_description'] ?? null;
+$cat->category_slug = $slug;
+$cat->slug = $slug;
+$cat->cat_type = 4;
 $cat->save();
 
-
-  if($request->hasFile('photo')){
-    
-    $file = $request->file('photo');
-
-    $fileName = $cat->id.'_'.$file->getClientOriginalName();
-    $filePath = 'uploads/logo/'.$fileName;
-    $is_uploaded = current_disk()->put($filePath, file_get_contents($file));
-    if($is_uploaded){
-
-
-
-      if(get_option(site_id().'_default_storage') == 'public') {
-        $cat->photo_url = get_option(site_id().'_main_site_url').'/storage/' . $filePath;
-      } else{
-       $is_uploaded = Storage::disk('public')->put($filePath, file_get_contents($file));
-       $cat->photo_url = 'https://awasam.s3.amazonaws.com/'.$filePath;
-     }
-
-     $cat->save();
-   }
-
- }
-
+if ($request->hasFile('photo')) {
+  $this->storeCategoryPhoto($cat, $request->file('photo'));
+}
 
 return redirect()->route("categories")->withInput()->with('success', trans('Catgory updated'));
 }
