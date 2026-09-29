@@ -19,6 +19,76 @@
       padding: 80px 0 70px;
     }
   }
+
+  /* ===== Shop Now: clean bordered tile grid (Newegg-style) ===== */
+  .shop-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: #fff;
+    border-top: 1px solid #e7e7e7;
+    border-left: 1px solid #e7e7e7;
+  }
+  .shop-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+    padding: 38px 26px 32px;
+    text-align: center;
+    color: var(--heading-color);
+    border-right: 1px solid #e7e7e7;
+    border-bottom: 1px solid #e7e7e7;
+    transition: box-shadow .2s ease, transform .2s ease;
+  }
+  .shop-tile:hover {
+    box-shadow: 0 14px 34px rgba(0, 0, 0, .08);
+    transform: translateY(-2px);
+    z-index: 1;
+  }
+  .shop-tile__media {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 180px;
+  }
+  .shop-tile__media img {
+    max-height: 170px;
+    max-width: 100%;
+    width: auto;
+    object-fit: contain;
+    transition: transform .3s ease;
+  }
+  .shop-tile:hover .shop-tile__media img { transform: scale(1.05); }
+  .shop-tile__placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #c9c9c9;
+    font-size: 46px;
+  }
+  .shop-tile__title {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+  .shop-tile__price {
+    margin-top: auto;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--primary-color);
+  }
+  @media (max-width: 991px) {
+    .shop-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 575px) {
+    .shop-grid { grid-template-columns: 1fr; }
+    .shop-tile { padding: 28px 20px 24px; }
+    .shop-tile__media { height: 150px; }
+  }
 </style>
 @endpush
 
@@ -71,22 +141,20 @@
           <h2 class="wow fadeInUp">Shop Now</h2>
         </div>
       </div>
-      <div class="row g-4">
+      <div class="shop-grid">
         @foreach($products as $product)
-          <div class="col-lg-3 col-md-4 col-sm-6">
-            <div class="card h-100 text-center p-3">
-              <?php $image = \App\Models\Upload::wherePostId($product->id)->whereStatus('1')->first(); ?>
+          @php $image = $product->uploads->first(); @endphp
+          <a class="shop-tile" href="{{ route('shop_description', $product->slug) }}">
+            <span class="shop-tile__media">
               @if($image)
-                <a href="{{ route('shop_description', $product->slug) }}" class="d-block mb-3">
-                  <img src="{{ url($image->file_path) }}" class="img-fluid" alt="{{ $product->title }}">
-                </a>
+                <img src="{{ url($image->file_path) }}" alt="{{ $product->title }}" loading="lazy">
+              @else
+                <span class="shop-tile__placeholder"><i class="fa-solid fa-image"></i></span>
               @endif
-              <h6 class="mb-1">
-                <a href="{{ route('shop_description', $product->slug) }}">{{ $product->title }}</a>
-              </h6>
-              <p class="text-primary fw-bold">{{ price($product->cost) }}</p>
-            </div>
-          </div>
+            </span>
+            <span class="shop-tile__title">{{ $product->title }}</span>
+            <span class="shop-tile__price">{{ price($product->cost) }}</span>
+          </a>
         @endforeach
       </div>
       <div class="text-center mt-40">

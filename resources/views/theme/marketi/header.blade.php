@@ -56,6 +56,8 @@
       .skip-link{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;}
       .skip-link:focus{position:static;width:auto;height:auto;padding:.5rem;background:#000;color:#fff;z-index:10000}
       .header-top .info a, .header-top .link-info a { text-decoration: none; }
+      .header-top .header-top-wrp .link-info li { float: none; line-height: normal; }
+      .header-top .header-top-wrp .link-info li a { width: auto; text-align: inherit; }
       .main-menu nav ul li a.active { color: var(--primary, #00a86b); }
       .offcanvas-backdrop { display:none; }
       .offcanvas-open .offcanvas-backdrop { display:block; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:998;}
