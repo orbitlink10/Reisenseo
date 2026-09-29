@@ -5,13 +5,18 @@
 
 @push('styles')
 <style>
-  /* Pull the homepage hero copy and artwork up to remove the large empty gap */
+  /* Keep the hero copy clear of the fixed header while trimming the excess gap */
   .banner-area {
-    padding-top: 40px;
+    padding-top: 120px;
+  }
+  @media (max-width: 991px) {
+    .banner-area {
+      padding-top: 80px;
+    }
   }
   @media (max-width: 767px) {
     .banner-area {
-      padding: 40px 0 70px;
+      padding: 80px 0 70px;
     }
   }
 </style>
