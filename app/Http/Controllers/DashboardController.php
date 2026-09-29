@@ -4761,8 +4761,13 @@ foreach($inputs as $key => $value) {
         }));
         $value = json_encode($value);
       }
-      $option = Option::firstOrCreate(['option_key' => $key]);
-      $option ->option_value = $value;
+      $option = Option::where('option_key', $key)->first();
+      if (! $option) {
+        $option = new Option();
+        $option->id = ((int) Option::max('id')) + 1;
+        $option->option_key = $key;
+      }
+      $option->option_value = $value;
       $option->save();
     }
 
