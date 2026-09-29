@@ -4,7 +4,7 @@
 @section('body-class', 'rsd-product-page')
 
 @section('page-css')
-<link rel="stylesheet" href="{{ asset('assets/css/product-form.css') }}?v=20260929">
+<link rel="stylesheet" href="{{ asset('assets/css/product-form.css') }}?v=20260930">
 @endsection
 
 @section('content')
@@ -116,5 +116,5 @@
 
 @section('page-js')
 <script src="https://cdn.jsdelivr.net/npm/tinymce@8.9.2/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
-<script src="{{ asset('assets/js/product-form.js') }}?v=20260929"></script>
+<script src="{{ asset('assets/js/product-form.js') }}?v=20260930"></script>
 @endsection
