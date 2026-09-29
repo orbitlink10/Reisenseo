@@ -236,7 +236,7 @@ CSS TABLE OF CONTENTS
 	// Hide & show by clicks js area end here ***
 
 	// Background image date area start here ***
-	$("[data-background").each(function () {
+	$("[data-background]").each(function () {
 		$(this).css(
 			"background-image",
 			"url( " + $(this).attr("data-background") + "  )"

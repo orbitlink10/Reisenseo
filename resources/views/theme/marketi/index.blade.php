@@ -2,6 +2,21 @@
 @section('title', 'Networking Equipment & CCTV Cameras in Kenya | Reisen SEO')
 @section('meta_description', 'Buy networking equipment and CCTV security systems in Kenya. Reisen SEO stocks routers, switches, wireless access points, network cables, IP cameras, NVRs, DVRs and accessories at competitive prices with fast delivery.')
 @section('canonical', url('/'))
+
+@push('styles')
+<style>
+  /* Pull the homepage hero copy and artwork up to remove the large empty gap */
+  .banner-area {
+    padding-top: 40px;
+  }
+  @media (max-width: 767px) {
+    .banner-area {
+      padding: 40px 0 70px;
+    }
+  }
+</style>
+@endpush
+
 @section('content')
 
 <main>
