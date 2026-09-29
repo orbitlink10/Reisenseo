@@ -312,6 +312,7 @@ Route::group(['prefix'=>'dashboard', 'middleware' => 'dashboard'], function(){
       
       Route::get('posts', ['as'=>'posts', 'uses' => 'DashboardController@posts']);
       Route::get('products', ['as'=>'products', 'uses' => 'DashboardController@products']);
+      Route::get('products/create', ['as'=>'create_product', 'uses' => 'DashboardController@createProductForm']);
       Route::get('trainings', ['as'=>'trainings', 'uses' => 'DashboardController@trainings']);
       Route::get('post-page', ['as'=>'post_page', 'uses' => 'DashboardController@postPage']);
     Route::get('categories', ['as'=>'categories', 'uses' => 'DashboardController@categories']);

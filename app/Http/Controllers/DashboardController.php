@@ -259,10 +259,12 @@ class DashboardController extends Controller
  public function editProduct($id)
  {
 
-   $post  = Post::whereId($id)->first();
-   $categories = Category::all();
+   $post  = Post::whereId($id)->firstOrFail();
+   $categories = Category::where('cat_type', 4)->orderBy('id', 'desc')->get();
+   $subCategories = Sub_category::whereIn('cat_id', $categories->pluck('id'))->orderBy('id', 'desc')->get();
    $sites = Website::all();
-   return view('admin.edit_product', compact('post', 'categories', 'sites'));
+   $pages = Page::all();
+   return view('admin.product_create', compact('post', 'categories', 'subCategories', 'sites', 'pages'));
  }
 
 
@@ -453,6 +455,9 @@ public function updatesingleProduct(Request $request)
   $page->category_id = $request->category_id ;
   $page->description = $request->description;
   $page->cost        = $request->cost;
+  $page->marked_price = $request->marked_price;
+  $page->quantity    = $request->quantity ?? 0;
+  $page->sub_category = $request->sub_category;
   $page->show_in_header_menu = $request->show_in_header_menu;
   $page->show_in_footer_menu = $request->show_in_footer_menu;
   $page->type = $request->post_type;
@@ -706,7 +711,19 @@ public function products(Request $request)
   if($request->site_id){
    $posts  = Post::whereNotNull('slug')->whereType('product')->whereSiteId($request->site_id)->orderBy('id', 'desc')->paginate(20);
  }
- return view('admin.products', compact('posts', 'categories', 'subCategories', 'sites', 'pages'));
+  return view('admin.products', compact('posts', 'categories', 'subCategories', 'sites', 'pages'));
+}
+
+
+public function createProductForm()
+{
+  $categories = Category::where('cat_type', 4)->orderBy('id', 'desc')->get();
+  $subCategories = Sub_category::whereIn('cat_id', $categories->pluck('id'))->orderBy('id', 'desc')->get();
+  $sites = Website::all();
+  $pages = Page::all();
+  $post = null;
+
+  return view('admin.product_create', compact('post', 'categories', 'subCategories', 'sites', 'pages'));
 }
 
 

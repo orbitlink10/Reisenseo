@@ -30,7 +30,7 @@
             <div class="dropdown-menu dropdown-menu-end" style="border-radius: 14px; border: 1px solid #e5e7eb; box-shadow: 0 12px 30px rgba(16,24,40,.12);">
                 <a class="dropdown-item" href="{{ route('add_order') }}"><i class="fa fa-file-alt me-2 text-muted"></i>New Order</a>
                 <a class="dropdown-item" href="{{ route('post_page') }}"><i class="fa fa-file me-2 text-muted"></i>New Page</a>
-                <a class="dropdown-item" href="{{ route('products') }}#add-product"><i class="fa fa-cube me-2 text-muted"></i>New Product</a>
+                <a class="dropdown-item" href="{{ route('create_product') }}"><i class="fa fa-cube me-2 text-muted"></i>New Product</a>
                 @if ($user->is_admin())
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" href="{{ route('add_user') }}"><i class="fa fa-user me-2 text-muted"></i>New User</a>
