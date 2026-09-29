@@ -142,20 +142,24 @@
         </div>
       </div>
       <div class="shop-grid">
-        @foreach($products as $product)
-          @php $image = $product->uploads->first(); @endphp
-          <a class="shop-tile" href="{{ route('shop_description', $product->slug) }}">
+        @forelse($shopCategories as $category)
+          @php
+            $catImage = $category->photo_url;
+            $catSlug = $category->category_slug ?: $category->slug;
+          @endphp
+          <a class="shop-tile" href="{{ route('shops_filter', $catSlug) }}">
             <span class="shop-tile__media">
-              @if($image)
-                <img src="{{ url($image->file_path) }}" alt="{{ $product->title }}" loading="lazy">
+              @if($catImage)
+                <img src="{{ $catImage }}" alt="{{ $category->name }}" loading="lazy">
               @else
                 <span class="shop-tile__placeholder"><i class="fa-solid fa-image"></i></span>
               @endif
             </span>
-            <span class="shop-tile__title">{{ $product->title }}</span>
-            <span class="shop-tile__price">{{ price($product->cost) }}</span>
+            <span class="shop-tile__title">{{ $category->name }}</span>
           </a>
-        @endforeach
+        @empty
+          <p class="empty-state">No categories selected.</p>
+        @endforelse
       </div>
       <div class="text-center mt-40">
         <a href="{{ route('shop') }}" class="btn-one wow fadeInDown">View All Products<i class="fa-regular fa-circle-arrow-right ml-10"></i></a>

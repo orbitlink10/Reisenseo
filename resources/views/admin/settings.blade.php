@@ -36,7 +36,7 @@
 @php
     $homeCategories = array_map('intval', site_option_array('home_categories'));
     $menuCategories = array_map('intval', site_option_array('menu_categories'));
-    $homeProducts = array_map('intval', site_option_array('home_products'));
+    $homeShopCategories = array_map('intval', site_option_array('home_shop_categories'));
     $homeProductsEyebrow = site_option('home_products_eyebrow', 'Latest Products');
     $homeProductsTitle = site_option('home_products_title', 'Shop Now');
     $phone = site_option('phone', '+254 714 804 532');
@@ -111,7 +111,7 @@
             </div>
         </div>
         <div class="rsd-panel__body">
-            <p class="rsd-hint">Choose the products featured in the homepage "Shop Now" section. Leave all unchecked to show the latest 8 products automatically.</p>
+            <p class="rsd-hint">Choose the categories featured in the homepage "Shop Now" section. Each category appears as a tile and links to its product listing. Leave all unchecked to show 8 categories automatically.</p>
             <div class="rsd-form-grid">
                 <div class="rsd-form-group">
                     <label>Small heading</label>
@@ -123,14 +123,14 @@
                 </div>
             </div>
             <div class="rsd-check-list" style="max-height: 420px; margin-top: 8px;">
-                <input type="hidden" name="{{ site_id() }}_home_products[]" value="">
-                @forelse ($products as $product)
+                <input type="hidden" name="{{ site_id() }}_home_shop_categories[]" value="">
+                @forelse ($categories as $category)
                     <label class="rsd-check">
-                        <input type="checkbox" name="{{ site_id() }}_home_products[]" value="{{ $product->id }}" @checked(in_array($product->id, $homeProducts))>
-                        <span>{{ $product->title }}</span>
+                        <input type="checkbox" name="{{ site_id() }}_home_shop_categories[]" value="{{ $category->id }}" @checked(in_array($category->id, $homeShopCategories))>
+                        <span>{{ $category->name }}</span>
                     </label>
                 @empty
-                    <p class="muted">No products found.</p>
+                    <p class="muted">No categories found.</p>
                 @endforelse
             </div>
         </div>
