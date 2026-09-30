@@ -1285,6 +1285,7 @@ public function search(Request $request)
   $term = trim((string) $request->input('search', ''));
 
   $categories = collect();
+  $products = collect();
 
   if ($term !== '') {
     $categories = Category::where('cat_type', 4)
@@ -1295,9 +1296,21 @@ public function search(Request $request)
       })
       ->orderBy('name')
       ->take(50)->get();
+
+    $products = Post::whereType('product')
+      ->whereNotNull('slug')
+      ->where(function ($query) use ($term) {
+        $query->where('title', 'like', "%{$term}%")
+          ->orWhere('slug', 'like', "%{$term}%")
+          ->orWhere('description', 'like', "%{$term}%");
+      })
+      ->orderBy('id', 'desc')
+      ->take(50)->get();
   }
 
-  return view('admin.search', compact('term', 'categories'));
+  $categoriesForProducts = Category::where('cat_type', 4)->get();
+
+  return view('admin.search', compact('term', 'categories', 'products', 'categoriesForProducts'));
 }
 
 
