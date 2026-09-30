@@ -12,6 +12,10 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('assets/css/product-details.css') }}?v=20260930b">
+<style>
+  /* Product page: minimal header — hide the main nav and Get in Touch button */
+  .main-menu, .btn-menu { display: none !important; }
+</style>
 @endpush
 
 @section('content')
