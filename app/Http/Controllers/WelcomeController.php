@@ -536,8 +536,25 @@ public function shopDescription($slug)
   {
     $product = Post::whereSlug($slug)->whereType('product')->firstOrFail();
     $uploads = $product->uploads;
-    
-    return view('theme.'.get_option(site_id().'_theme').'.product_details', compact('product', 'uploads'));
+
+    $relatedProducts = Post::whereType('product')
+      ->where('id', '!=', $product->id)
+      ->when($product->category_id, function ($query) use ($product) {
+        return $query->where('category_id', $product->category_id);
+      })
+      ->orderBy('id', 'desc')
+      ->take(4)
+      ->get();
+
+    if ($relatedProducts->isEmpty()) {
+      $relatedProducts = Post::whereType('product')
+        ->where('id', '!=', $product->id)
+        ->orderBy('id', 'desc')
+        ->take(4)
+        ->get();
+    }
+
+    return view('theme.'.get_option(site_id().'_theme').'.product_details', compact('product', 'uploads', 'relatedProducts'));
   }
 
   public function trainingDescription($id)

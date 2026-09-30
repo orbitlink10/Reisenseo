@@ -11,7 +11,7 @@
 @endif
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('assets/css/product-details.css') }}?v=20260930">
+<link rel="stylesheet" href="{{ asset('assets/css/product-details.css') }}?v=20260930b">
 @endpush
 
 @section('content')
@@ -158,6 +158,40 @@
             </div>
         </section>
         <div class="rs-product__browse"><span>Keep exploring</span><a href="{{ $category ? route('shops_filter', $category->slug) : route('shop') }}">{{ $category ? 'More in '.$category->name : 'All products' }} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></div>
+
+        @if (isset($relatedProducts) && $relatedProducts->isNotEmpty())
+            <section class="rs-related" aria-label="Related products">
+                <h2 class="rs-related__title">Related products</h2>
+                <div class="rs-related__grid">
+                    @foreach ($relatedProducts as $related)
+                        @php
+                            $relatedImage = $related->uploads->first();
+                            $relatedExcerpt = trim(preg_replace('/\s+/', ' ', strip_tags($related->meta_description ?: ($related->description ?? ''))));
+                            $relatedUrl = route('shop_description', $related->slug);
+                        @endphp
+                        <article class="rs-related-card">
+                            <a class="rs-related-card__media" href="{{ $relatedUrl }}" aria-label="View {{ $related->title }}">
+                                @if ($relatedImage)
+                                    <img src="{{ url($relatedImage->file_path) }}" alt="{{ $related->title }}" loading="lazy">
+                                @else
+                                    <span class="rs-related-card__empty"><i class="fa-regular fa-image" aria-hidden="true"></i></span>
+                                @endif
+                            </a>
+                            <div class="rs-related-card__body">
+                                <h3 class="rs-related-card__name"><a href="{{ $relatedUrl }}">{{ $related->title }}</a></h3>
+                                @if ($relatedExcerpt !== '')
+                                    <p class="rs-related-card__desc">{{ \Illuminate\Support\Str::limit($relatedExcerpt, 110) }}</p>
+                                @endif
+                                <div class="rs-related-card__foot">
+                                    <span class="rs-related-card__price">{{ $currency }} {{ number_format((float) $related->cost, 2) }}</span>
+                                    <a class="rs-related-card__btn" href="{{ $relatedUrl }}">View</a>
+                                </div>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            </section>
+        @endif
     </div>
 </div>
 @endsection

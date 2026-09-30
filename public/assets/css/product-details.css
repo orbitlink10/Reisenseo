@@ -90,3 +90,24 @@
     .rs-product__specifications th, .rs-product__specifications td { padding: 12px; }
     .rs-product__browse { flex-wrap: wrap; }
 }
+
+/* ===== Related products ===== */
+.rs-related { margin-top: 46px; padding-top: 36px; border-top: 1px solid var(--product-line); }
+.rs-related__title { font-size: 25px; line-height: 1.4; margin: 0 0 22px; color: var(--product-ink); text-transform: none; }
+.rs-related__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
+.rs-related-card { display: flex; flex-direction: column; background: #fff; border: 1px solid var(--product-line); border-radius: 14px; overflow: hidden; transition: transform .2s ease, box-shadow .2s ease; }
+.rs-related-card:hover { transform: translateY(-3px); box-shadow: 0 16px 34px rgba(15, 61, 51, .10); }
+.rs-related-card__media { display: flex; align-items: center; justify-content: center; height: 210px; padding: 22px; background: #fff; }
+.rs-related-card__media img { max-height: 170px; max-width: 100%; width: auto; object-fit: contain; }
+.rs-related-card__empty { display: grid; place-items: center; width: 100%; height: 100%; color: #bac5d1; font-size: 52px; }
+.rs-related-card__body { display: flex; flex-direction: column; flex: 1; padding: 0 20px 20px; }
+.rs-related-card__name { font-size: 17px; font-weight: 700; line-height: 1.35; margin: 0 0 10px; }
+.rs-related-card__name a { color: var(--product-ink); }
+.rs-related-card__name a:hover { color: var(--product-accent); }
+.rs-related-card__desc { color: var(--product-muted); font-size: 13px; line-height: 1.6; margin: 0 0 16px; }
+.rs-related-card__foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.rs-related-card__price { font-weight: 700; font-size: 15px; color: var(--product-ink); }
+.rs-related-card__btn { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 22px; border-radius: 999px; background: var(--product-accent); color: #fff; font-size: 14px; font-weight: 600; }
+.rs-related-card__btn:hover { background: #134638; color: #fff; }
+@media (max-width: 991px) { .rs-related__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 575px) { .rs-related__grid { grid-template-columns: 1fr; } }
